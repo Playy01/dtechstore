@@ -1,0 +1,216 @@
+---
+---
+
+<div id="notification-container"></div>
+
+<style>
+  #notification-container {
+    position: fixed;
+    top: 100px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: none;
+  }
+
+  :global(.notification) {
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    padding: 20px 28px;
+    border-radius: 24px;
+    box-shadow: 
+      0 12px 48px rgba(0, 0, 0, 0.12),
+      0 4px 16px rgba(0, 0, 0, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 1);
+    border: 1.5px solid rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 320px;
+    max-width: 420px;
+    animation: slideInRight 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: all;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  :global(.notification:hover) {
+    transform: translateX(-4px) scale(1.02);
+    box-shadow: 
+      0 16px 64px rgba(0, 0, 0, 0.15),
+      0 6px 20px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 1);
+  }
+
+  :global(.notification.success) {
+    border-color: rgba(16, 185, 129, 0.3);
+  }
+
+  :global(.notification.error) {
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+
+  :global(.notification.warning) {
+    border-color: rgba(245, 158, 11, 0.3);
+  }
+
+  :global(.notification.info) {
+    border-color: rgba(99, 102, 241, 0.3);
+  }
+
+  :global(.notification-icon) {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+
+  :global(.notification.success .notification-icon) {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+  }
+
+  :global(.notification.error .notification-icon) {
+    background: rgba(239, 68, 68, 0.1);
+    color: #DC2626;
+  }
+
+  :global(.notification.warning .notification-icon) {
+    background: rgba(245, 158, 11, 0.1);
+    color: #D97706;
+  }
+
+  :global(.notification.info .notification-icon) {
+    background: rgba(99, 102, 241, 0.1);
+    color: #6366F1;
+  }
+
+  :global(.notification-content) {
+    flex: 1;
+  }
+
+  :global(.notification-title) {
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 4px;
+    color: var(--text-primary);
+  }
+
+  :global(.notification-message) {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  :global(.notification-close) {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.05);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  :global(.notification-close:hover) {
+    background: rgba(0, 0, 0, 0.1);
+    transform: scale(1.1);
+  }
+
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(100px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  :global(.notification.fade-out) {
+    animation: fadeOut 0.3s ease-out forwards;
+  }
+
+  @keyframes fadeOut {
+    to {
+      opacity: 0;
+      transform: translateX(100px);
+    }
+  }
+
+  @media (max-width: 768px) {
+    #notification-container {
+      right: 12px;
+      left: 12px;
+      top: 80px;
+    }
+
+    :global(.notification) {
+      min-width: auto;
+      max-width: none;
+    }
+  }
+</style>
+
+<script>
+  // Función global para mostrar notificaciones
+  (window as any).showNotification = function(
+    message: string, 
+    type: 'success' | 'error' | 'warning' | 'info' = 'info',
+    title?: string,
+    duration: number = 4000
+  ) {
+    const container = document.getElementById('notification-container');
+    if (!container) return;
+
+    const icons = {
+      success: '✓',
+      error: '✕',
+      warning: '⚠',
+      info: 'ℹ'
+    };
+
+    const titles = {
+      success: title || '¡Éxito!',
+      error: title || 'Error',
+      warning: title || 'Atención',
+      info: title || 'Información'
+    };
+
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+      <div class="notification-icon">${icons[type]}</div>
+      <div class="notification-content">
+        <div class="notification-title">${titles[type]}</div>
+        <div class="notification-message">${message}</div>
+      </div>
+      <button class="notification-close">✕</button>
+    `;
+
+    container.appendChild(notification);
+
+    // Cerrar al hacer click en el botón
+    const closeBtn = notification.querySelector('.notification-close');
+    closeBtn?.addEventListener('click', () => {
+      notification.classList.add('fade-out');
+      setTimeout(() => notification.remove(), 300);
+    });
+
+    // Auto-cerrar después de la duración
+    setTimeout(() => {
+      notification.classList.add('fade-out');
+      setTimeout(() => notification.remove(), 300);
+    }, duration);
+  };
+</script>

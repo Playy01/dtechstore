@@ -1,0 +1,135 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Mis Órdenes - DTech">
+  <div class="container">
+    <h1>Mis Órdenes</h1>
+    <div class="orders-list" id="ordersList"></div>
+  </div>
+</Layout>
+
+<style>
+  h1 {
+    margin-bottom: 32px;
+  }
+
+  .orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .order-card {
+    background: var(--bg-primary);
+    padding: 24px;
+    border-radius: var(--radius);
+  }
+
+  .order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .order-status {
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .order-status.pending {
+    background: #FFF3CD;
+    color: #856404;
+  }
+
+  .order-status.completed {
+    background: #D4EDDA;
+    color: #155724;
+  }
+
+  .order-items {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .order-item {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .order-item img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+  }
+</style>
+
+<script>
+  const API_URL = 'http://localhost:8080/api';
+
+  async function loadOrders() {
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      window.location.href = '/login';
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/orders`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al cargar órdenes');
+      }
+
+      const orders = await response.json();
+      displayOrders(orders);
+    } catch (error) {
+      console.error('Error:', error);
+      const container = document.getElementById('ordersList');
+      if (container) {
+        container.innerHTML = '<p>Error al cargar las órdenes</p>';
+      }
+    }
+  }
+
+  function displayOrders(orders: any[]) {
+    const container = document.getElementById('ordersList');
+    if (!container) return;
+
+    if (orders.length === 0) {
+      container.innerHTML = '<p>No tienes órdenes aún</p>';
+      return;
+    }
+
+    container.innerHTML = orders.map(order => `
+      <div class="order-card">
+        <div class="order-header">
+          <div>
+            <strong>Orden #${order.id}</strong>
+            <p>${new Date(order.created_at).toLocaleDateString()}</p>
+          </div>
+          <div>
+            <span class="order-status ${order.status}">${order.status}</span>
+            <p><strong>Total: $${order.total.toFixed(2)}</strong></p>
+          </div>
+        </div>
+        <a href="/orden/${order.id}" style="color: var(--primary)">Ver detalles →</a>
+      </div>
+    `).join('');
+  }
+
+  loadOrders();
+</script>

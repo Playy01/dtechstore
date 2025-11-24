@@ -1,0 +1,281 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Productos - DTech">
+  <div class="container">
+    <div class="products-layout">
+      <aside class="sidebar">
+        <h3>Categorías</h3>
+        <div id="categoryFilters"></div>
+      </aside>
+
+      <div class="products-content">
+        <div class="products-header">
+          <h1>Productos</h1>
+          <select id="sortSelect" class="sort-select">
+            <option value="">Ordenar por</option>
+            <option value="price_asc">Precio: Menor a Mayor</option>
+            <option value="price_desc">Precio: Mayor a Menor</option>
+            <option value="name">Nombre</option>
+          </select>
+        </div>
+
+        <div class="product-grid" id="productGrid"></div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .products-layout {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 32px;
+  }
+
+  .sidebar {
+    background: var(--bg-primary);
+    padding: 24px;
+    border-radius: var(--radius);
+    height: fit-content;
+    position: sticky;
+    top: 100px;
+  }
+
+  .sidebar h3 {
+    margin-bottom: 16px;
+  }
+
+  .products-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+  }
+
+  .sort-select {
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-primary);
+    cursor: pointer;
+  }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+  }
+
+  .category-filter {
+    display: block;
+    padding: 12px;
+    margin-bottom: 8px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .category-filter:hover {
+    background: var(--bg-secondary);
+  }
+
+  .category-filter.active {
+    background: var(--primary);
+    color: white;
+  }
+</style>
+
+<script>
+  const API_URL = 'http://localhost:8080/api';
+  let allProducts: any[] = [];
+
+  async function loadProducts() {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const category = urlParams.get('category');
+      const search = urlParams.get('search');
+
+      let url = `${API_URL}/products?`;
+      if (category) url += `category=${encodeURIComponent(category)}&`;
+      if (search) url += `search=${encodeURIComponent(search)}`;
+
+      const response = await fetch(url);
+      allProducts = await response.json();
+      displayProducts(allProducts);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+
+  async function loadCategories() {
+    try {
+      const response = await fetch(`${API_URL}/products/categories`);
+      const categories = await response.json();
+      
+      const container = document.getElementById('categoryFilters');
+      if (!container) return;
+
+      container.innerHTML = categories.map((cat: string) => `
+        <a href="/productos?category=${encodeURIComponent(cat)}" class="category-filter">${cat}</a>
+      `).join('');
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+
+  function displayProducts(products: any[]) {
+    const grid = document.getElementById('productGrid');
+    if (!grid) return;
+
+    if (products.length === 0) {
+      grid.innerHTML = '<p>No se encontraron productos</p>';
+      return;
+    }
+
+    grid.innerHTML = products.map(product => `
+      <a href="/producto/${product.id}" class="product-card">
+        <img src="${product.image_url}" alt="${product.name}">
+        <h3>${product.name}</h3>
+        <p class="price">$${product.price.toFixed(2)}</p>
+        <button class="add-cart-btn" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}" data-image="${product.image_url}">
+          🛒 Agregar al Carrito
+        </button>
+      </a>
+    `).join('');
+
+    document.querySelectorAll('.add-cart-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        addToCart(e);
+      });
+    });
+  }
+
+  function addToCart(e: Event) {
+    // Verificar si el usuario ha iniciado sesión
+    const token = localStorage.getItem('token');
+    if (!token) {
+      (window as any).showNotification(
+        'Por favor inicia sesión para agregar productos al carrito',
+        'warning',
+        'Sesión Requerida'
+      );
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 1500);
+      return;
+    }
+
+    const btn = e.target as HTMLButtonElement;
+    const product = {
+      id: btn.dataset.id,
+      name: btn.dataset.name,
+      price: parseFloat(btn.dataset.price || '0'),
+      image: btn.dataset.image,
+      quantity: 1
+    };
+
+    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    const existing = cart.find((item: any) => item.id === product.id);
+    
+    if (existing) {
+      existing.quantity++;
+    } else {
+      cart.push(product);
+    }
+
+    localStorage.setItem('cart', JSON.stringify(cart));
+    (window as any).showNotification(
+      'El producto ha sido agregado a tu carrito',
+      'success',
+      '¡Agregado!'
+    );
+    
+    // Disparar evento para actualizar el contador
+    window.dispatchEvent(new Event('cartUpdated'));
+  }
+
+  const sortSelect = document.getElementById('sortSelect') as HTMLSelectElement;
+  sortSelect?.addEventListener('change', () => {
+    const sorted = [...allProducts];
+    switch (sortSelect.value) {
+      case 'price_asc':
+        sorted.sort((a, b) => a.price - b.price);
+        break;
+      case 'price_desc':
+        sorted.sort((a, b) => b.price - a.price);
+        break;
+      case 'name':
+        sorted.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+    }
+    displayProducts(sorted);
+  });
+
+  loadProducts();
+  loadCategories();
+</script>
+
+
+<style is:global>
+  .product-card {
+    display: block;
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid var(--border);
+    animation: scaleIn 0.5s ease-out both;
+  }
+
+  .product-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 16px 48px var(--shadow-lg);
+    border-color: var(--primary);
+  }
+
+  .product-card img {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .product-card:hover img {
+    transform: scale(1.1);
+  }
+
+  .product-card h3 {
+    padding: 16px;
+    font-size: 18px;
+  }
+
+  .product-card .price {
+    padding: 0 16px;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary);
+  }
+
+  .product-card .add-cart-btn {
+    display: block;
+    width: calc(100% - 32px);
+    margin: 16px;
+    padding: 14px;
+    background: var(--bg-gradient);
+    color: white;
+    text-align: center;
+    border-radius: var(--radius);
+    font-weight: 700;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px var(--shadow);
+  }
+
+  .product-card .add-cart-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px var(--shadow-lg);
+  }
+</style>

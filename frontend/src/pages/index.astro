@@ -1,0 +1,262 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="DTech - Inicio">
+  <div class="container">
+    <section class="hero">
+      <div class="hero-content">
+        <h1>Bienvenido a DTech</h1>
+        <p>Descubre la mejor tecnología con estilo y calidad</p>
+        <a href="/productos" class="cta-button">
+          <span>Explorar Productos</span>
+          <span class="arrow">→</span>
+        </a>
+      </div>
+      <div class="hero-decoration"></div>
+    </section>
+
+    <section class="categories">
+      <h2>Categorías Destacadas</h2>
+      <div class="category-grid" id="categoryGrid">
+        <div class="category-card">
+          <div class="category-icon">🎧</div>
+          <h3>Audífonos</h3>
+          <a href="/productos?category=Audífonos" class="category-link">Ver más</a>
+        </div>
+        <div class="category-card">
+          <div class="category-icon">⌨️</div>
+          <h3>Teclados</h3>
+          <a href="/productos?category=Teclados" class="category-link">Ver más</a>
+        </div>
+        <div class="category-card">
+          <div class="category-icon">🖱️</div>
+          <h3>Mouse</h3>
+          <a href="/productos?category=Mouse" class="category-link">Ver más</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="featured">
+      <h2>Productos Destacados</h2>
+      <div class="product-grid" id="featuredProducts"></div>
+    </section>
+  </div>
+</Layout>
+
+<style>
+  .hero {
+    position: relative;
+    text-align: center;
+    padding: 120px 20px;
+    background: var(--bg-gradient);
+    border-radius: var(--radius-lg);
+    color: white;
+    margin-bottom: 64px;
+    overflow: hidden;
+    animation: fadeIn 0.8s ease-out;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-decoration {
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: pulse 4s ease-in-out infinite;
+  }
+
+  .hero h1 {
+    font-size: 64px;
+    margin-bottom: 24px;
+    font-weight: 800;
+    animation: fadeInUp 0.8s ease-out 0.2s both;
+    text-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+
+  .hero p {
+    font-size: 24px;
+    margin-bottom: 40px;
+    opacity: 0.95;
+    animation: fadeInUp 0.8s ease-out 0.4s both;
+  }
+
+  .cta-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 48px;
+    background: white;
+    color: var(--primary);
+    border-radius: var(--radius);
+    font-weight: 700;
+    font-size: 20px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    animation: fadeInUp 0.8s ease-out 0.6s both;
+  }
+
+  .cta-button:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+  }
+
+  .cta-button .arrow {
+    transition: transform 0.3s;
+  }
+
+  .cta-button:hover .arrow {
+    transform: translateX(8px);
+  }
+
+  .categories, .featured {
+    margin-bottom: 64px;
+  }
+
+  h2 {
+    font-size: 32px;
+    margin-bottom: 32px;
+  }
+
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 24px;
+  }
+
+  .category-card {
+    background: var(--bg-primary);
+    padding: 40px;
+    border-radius: var(--radius-lg);
+    text-align: center;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid var(--border);
+    animation: fadeInUp 0.6s ease-out both;
+  }
+
+  .category-card:nth-child(1) { animation-delay: 0.1s; }
+  .category-card:nth-child(2) { animation-delay: 0.2s; }
+  .category-card:nth-child(3) { animation-delay: 0.3s; }
+
+  .category-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 12px 40px var(--shadow-lg);
+    border-color: var(--primary);
+  }
+
+  .category-icon {
+    font-size: 72px;
+    margin-bottom: 20px;
+    transition: transform 0.3s;
+    filter: drop-shadow(0 4px 8px var(--shadow));
+  }
+
+  .category-card:hover .category-icon {
+    transform: scale(1.1) rotate(5deg);
+  }
+
+  .category-link {
+    display: inline-block;
+    margin-top: 16px;
+    color: var(--primary);
+    font-weight: 600;
+  }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+  }
+</style>
+
+<script>
+  const API_URL = 'http://localhost:8080/api';
+
+  async function loadFeaturedProducts() {
+    try {
+      const response = await fetch(`${API_URL}/products`);
+      const products = await response.json();
+      
+      const grid = document.getElementById('featuredProducts');
+      if (!grid) return;
+
+      grid.innerHTML = products.slice(0, 4).map((product: any) => `
+        <div class="product-card">
+          <img src="${product.image_url}" alt="${product.name}">
+          <h3>${product.name}</h3>
+          <p class="price">$${product.price.toFixed(2)}</p>
+          <a href="/producto/${product.id}" class="view-btn">Ver Producto →</a>
+        </div>
+      `).join('');
+    } catch (error) {
+      console.error('Error cargando productos:', error);
+    }
+  }
+
+  loadFeaturedProducts();
+</script>
+
+<style is:global>
+  .product-card {
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid var(--border);
+    animation: scaleIn 0.5s ease-out both;
+  }
+
+  .product-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 16px 48px var(--shadow-lg);
+    border-color: var(--primary);
+  }
+
+  .product-card img {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .product-card:hover img {
+    transform: scale(1.1);
+  }
+
+  .product-card h3 {
+    padding: 16px;
+    font-size: 18px;
+  }
+
+  .product-card .price {
+    padding: 0 16px;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary);
+  }
+
+  .product-card .view-btn {
+    display: block;
+    margin: 16px;
+    padding: 14px;
+    background: var(--bg-gradient);
+    color: white;
+    text-align: center;
+    border-radius: var(--radius);
+    font-weight: 700;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px var(--shadow);
+  }
+
+  .product-card .view-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px var(--shadow-lg);
+  }
+</style>

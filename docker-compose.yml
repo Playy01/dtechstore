@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: dtech-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: ecommerce
+      MYSQL_USER: ecommerce_user
+      MYSQL_PASSWORD: ecommerce_pass
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    ports:
+      - "3306:3306"
+    networks:
+      - dtech-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: dtech-backend
+    environment:
+      DB_DSN: ecommerce_user:ecommerce_pass@tcp(mysql:3306)/ecommerce?parseTime=true
+      JWT_SECRET: cambia-este-secreto-por-uno-muy-seguro-en-produccion
+      PORT: 8080
+      GIN_MODE: release
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - dtech-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: dtech-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - dtech-network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+
+networks:
+  dtech-network:
+    driver: bridge

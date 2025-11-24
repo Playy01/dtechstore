@@ -1,0 +1,47 @@
+---
+import Header from '../components/Header.astro';
+import Notification from '../components/Notification.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{title}</title>
+</head>
+<body>
+  <Header />
+  <Notification />
+  <main>
+    <slot />
+  </main>
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2024 DTech. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+</body>
+</html>
+
+<style>
+  main {
+    min-height: calc(100vh - 200px);
+    padding: 32px 0;
+  }
+
+  .footer {
+    background: var(--bg-primary);
+    padding: 32px 0;
+    text-align: center;
+    color: var(--text-secondary);
+    border-top: 1px solid var(--border);
+  }
+</style>
