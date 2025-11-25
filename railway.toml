@@ -1,6 +1,6 @@
 [build]
 builder = "DOCKERFILE"
-dockerfilePath = "backend/railway.Dockerfile"
+dockerfilePath = "Dockerfile.backend"
 watchPatterns = ["backend/**/*.go"]
 
 [deploy]
