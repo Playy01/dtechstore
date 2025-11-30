@@ -12,6 +12,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/lib/pq"
 )
 
 // Helper function para dividir y limpiar strings
@@ -28,13 +29,19 @@ func splitAndTrim(s, sep string) []string {
 }
 
 func main() {
-	// Conexión a MySQL
+	// Conexión a base de datos (MySQL o PostgreSQL)
 	dsn := os.Getenv("DB_DSN")
+	dbDriver := os.Getenv("DB_DRIVER")
+	
+	if dbDriver == "" {
+		dbDriver = "mysql"
+	}
+	
 	if dsn == "" {
 		dsn = "danny:2077@tcp(localhost:3306)/ecommerce?parseTime=true"
 	}
 
-	db, err := sql.Open("mysql", dsn)
+	db, err := sql.Open(dbDriver, dsn)
 	if err != nil {
 		log.Fatal("Error conectando a la base de datos:", err)
 	}
@@ -45,7 +52,7 @@ func main() {
 	}
 
 	database.DB = db
-	log.Println("Conexión a MySQL exitosa")
+	log.Printf("Conexión a %s exitosa", dbDriver)
 
 	// Configurar Gin
 	r := gin.Default()
