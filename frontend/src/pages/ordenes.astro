@@ -76,27 +76,21 @@ import Layout from '../layouts/Layout.astro';
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
   
   const supabase = createClient(
-    'https://szfamthbjrsqctzgokx.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZmFtdGhianJzcWN0emdva3giLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczMjkyNzU3NCwiZXhwIjoyMDQ4NTAzNTc0fQ.Ej3haz4QlBUcrN4bfDLAKVQ_B8k3pp04'
+    'https://szfwntkbjrspcptzgoks.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZndudGtianJzcGNwdHpnb2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1MzcxODEsImV4cCI6MjA4MDExMzE4MX0.RHng44u3pPpUZwlb-W1KvoyCi7RTVNtmw7S7LjgG0G0'
   );
 
   async function loadOrders() {
-    const { data: { user } } = await supabase.auth.getUser();
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const userStr = localStorage.getItem('user');
     
-    if (!user) {
+    if (!isLoggedIn || !userStr) {
       window.location.href = '/login';
       return;
     }
 
     try {
-      // Obtener el user_id de la tabla users
-      const { data: userData } = await supabase
-        .from('users')
-        .select('id')
-        .eq('email', user.email)
-        .single();
-
-      if (!userData) throw new Error('Usuario no encontrado');
+      const user = JSON.parse(userStr);
 
       // Obtener órdenes del usuario
       const { data: orders, error } = await supabase
@@ -108,13 +102,13 @@ import Layout from '../layouts/Layout.astro';
             products (*)
           )
         `)
-        .eq('user_id', userData.id)
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
       displayOrders(orders || []);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error:', error);
       const container = document.getElementById('ordersList');
       if (container) {
@@ -123,7 +117,7 @@ import Layout from '../layouts/Layout.astro';
     }
   }
 
-  function displayOrders(orders: any[]) {
+  function displayOrders(orders) {
     const container = document.getElementById('ordersList');
     if (!container) return;
 

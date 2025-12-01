@@ -87,40 +87,68 @@ import Layout from '../layouts/Layout.astro';
     color: var(--text-secondary);
     margin-bottom: 4px;
   }
+
+  /* Responsive Mobile Styles */
+  @media (max-width: 768px) {
+    .profile-layout {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .profile-sidebar {
+      padding: 20px;
+    }
+
+    .profile-content {
+      padding: 24px;
+    }
+
+    h1 {
+      font-size: 28px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .profile-sidebar {
+      padding: 16px;
+    }
+
+    .profile-content {
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 24px;
+    }
+
+    .info-row {
+      padding: 12px 0;
+    }
+  }
 </style>
 
 <script>
-  const API_URL = 'http://localhost:8080/api';
-
-  async function loadProfile() {
-    const token = localStorage.getItem('token');
+  function loadProfile() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const userStr = localStorage.getItem('user');
     
-    if (!token) {
+    if (!isLoggedIn || !userStr) {
       window.location.href = '/login';
       return;
     }
 
     try {
-      const response = await fetch(`${API_URL}/auth/profile`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Error al cargar perfil');
-      }
-
-      const user = await response.json();
+      const user = JSON.parse(userStr);
       displayProfile(user);
     } catch (error) {
       console.error('Error:', error);
-      localStorage.removeItem('token');
+      localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('user');
       window.location.href = '/login';
     }
   }
 
-  function displayProfile(user: any) {
+  function displayProfile(user) {
     const container = document.getElementById('profileInfo');
     if (!container) return;
 
@@ -138,17 +166,17 @@ import Layout from '../layouts/Layout.astro';
         <div>${user.role === 'admin' ? 'Administrador' : 'Usuario'}</div>
       </div>
       <div class="info-row">
-        <div class="info-label">Miembro desde</div>
-        <div>${new Date(user.created_at).toLocaleDateString()}</div>
+        <div class="info-label">ID de Usuario</div>
+        <div>#${user.id}</div>
       </div>
     `;
   }
 
   document.getElementById('logoutBtn')?.addEventListener('click', () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('user');
     localStorage.removeItem('cart');
-    (window as any).showNotification(
+    window.showNotification?.(
       'Has cerrado sesión correctamente',
       'info',
       'Sesión Cerrada'
