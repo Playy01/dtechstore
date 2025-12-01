@@ -1,7 +1,7 @@
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-  output: 'hybrid',
+  output: 'static',
   server: {
     port: 4321
   }
