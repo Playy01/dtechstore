@@ -140,7 +140,12 @@ import Layout from '../layouts/Layout.astro';
 </style>
 
 <script>
-  const API_URL = 'http://localhost:8080/api';
+  import { createClient } from '@supabase/supabase-js';
+  
+  const supabase = createClient(
+    'https://szfamthbjrsqctzgokx.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZmFtdGhianJzcWN0emdva3giLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczMjkyNzU3NCwiZXhwIjoyMDQ4NTAzNTc0fQ.Ej3haz4QlBUcrN4bfDLAKVQ_B8k3pp04'
+  );
 
   document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -149,33 +154,34 @@ import Layout from '../layouts/Layout.astro';
     const password = (document.getElementById('password') as HTMLInputElement).value;
 
     try {
-      const response = await fetch(`${API_URL}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
       });
 
-      const data = await response.json();
+      if (error) throw error;
 
-      if (response.ok) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+      if (data.user) {
+        // Obtener información adicional del usuario desde la tabla users
+        const { data: userData } = await supabase
+          .from('users')
+          .select('*')
+          .eq('email', email)
+          .single();
+
+        localStorage.setItem('token', data.session?.access_token || '');
+        localStorage.setItem('user', JSON.stringify(userData || data.user));
+        
         (window as any).showNotification(
-          `Bienvenido de vuelta, ${data.user.name}`,
+          `Bienvenido de vuelta, ${userData?.name || email}`,
           'success',
           '¡Sesión Iniciada!'
         );
         setTimeout(() => {
           window.location.href = '/';
         }, 1500);
-      } else {
-        (window as any).showNotification(
-          data.error || 'Credenciales incorrectas',
-          'error',
-          'Error al Iniciar Sesión'
-        );
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error:', error);
       (window as any).showNotification(
         'No se pudo conectar con el servidor',
