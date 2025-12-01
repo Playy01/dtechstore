@@ -176,18 +176,27 @@ import Layout from '../layouts/Layout.astro';
   }
 </style>
 
-<script>
-  const API_URL = 'http://localhost:8080/api';
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+  
+  const supabase = createClient(
+    'https://szfwntkbjrspcptzgoks.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZndudGtianJzcGNwdHpnb2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1MzcxODEsImV4cCI6MjA4MDExMzE4MX0.RHng44u3pPpUZwlb-W1KvoyCi7RTVNtmw7S7LjgG0G0'
+  );
 
   async function loadFeaturedProducts() {
     try {
-      const response = await fetch(`${API_URL}/products`);
-      const products = await response.json();
+      const { data: products, error } = await supabase
+        .from('products')
+        .select('*')
+        .limit(4);
+
+      if (error) throw error;
       
       const grid = document.getElementById('featuredProducts');
       if (!grid) return;
 
-      grid.innerHTML = products.slice(0, 4).map((product: any) => `
+      grid.innerHTML = products.map((product) => `
         <div class="product-card">
           <img src="${product.image_url}" alt="${product.name}" loading="lazy" width="300" height="300">
           <h3>${product.name}</h3>
