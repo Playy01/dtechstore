@@ -87,10 +87,10 @@ import Layout from '../layouts/Layout.astro';
   }
 </style>
 
-<script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+<script>
+  const { createClient } = supabase;
   
-  const supabase = createClient(
+  const supabaseClient = createClient(
     'https://szfamthbjrsqctzgokx.supabase.co',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZmFtdGhianJzcWN0emdva3giLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczMjkyNzU3NCwiZXhwIjoyMDQ4NTAzNTc0fQ.Ej3haz4QlBUcrN4bfDLAKVQ_B8k3pp04'
   );
@@ -104,7 +104,7 @@ import Layout from '../layouts/Layout.astro';
       const category = urlParams.get('category');
       const search = urlParams.get('search');
 
-      let query = supabase.from('products').select('*');
+      let query = supabaseClient.from('products').select('*');
       
       if (category) {
         query = query.eq('category', category);
@@ -135,7 +135,7 @@ import Layout from '../layouts/Layout.astro';
 
   async function loadCategories() {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseClient
         .from('products')
         .select('category');
       
