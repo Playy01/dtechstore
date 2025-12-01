@@ -396,8 +396,8 @@ import Layout from '../layouts/Layout.astro';
   }
 </style>
 
-<script>
-  import { createClient } from '@supabase/supabase-js';
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
   
   const supabase = createClient(
     'https://szfamthbjrsqctzgokx.supabase.co',
