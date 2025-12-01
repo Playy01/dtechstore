@@ -95,7 +95,7 @@ import Layout from '../layouts/Layout.astro';
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZmFtdGhianJzcWN0emdva3giLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczMjkyNzU3NCwiZXhwIjoyMDQ4NTAzNTc0fQ.Ej3haz4QlBUcrN4bfDLAKVQ_B8k3pp04'
   );
   
-  let allProducts: any[] = [];
+  let allProducts = [];
 
   async function loadProducts() {
     try {
@@ -147,7 +147,7 @@ import Layout from '../layouts/Layout.astro';
       const container = document.getElementById('categoryFilters');
       if (!container) return;
 
-      container.innerHTML = categories.map((cat: string) => `
+      container.innerHTML = categories.map((cat) => `
         <a href="/productos?category=${encodeURIComponent(cat)}" class="category-filter">${cat}</a>
       `).join('');
     } catch (error) {
@@ -155,7 +155,7 @@ import Layout from '../layouts/Layout.astro';
     }
   }
 
-  function displayProducts(products: any[]) {
+  function displayProducts(products) {
     const grid = document.getElementById('productGrid');
     if (!grid) return;
 
@@ -209,7 +209,7 @@ import Layout from '../layouts/Layout.astro';
     };
 
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-    const existing = cart.find((item: any) => item.id === product.id);
+    const existing = cart.find((item) => item.id === product.id);
     
     if (existing) {
       existing.quantity++;
