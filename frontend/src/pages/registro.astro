@@ -205,8 +205,18 @@ import Layout from '../layouts/Layout.astro';
   }
 </style>
 
-<script>
-  import { register } from '../lib/auth';
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+  
+  const supabase = createClient(
+    'https://szfamthbjrsqctzgokx.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZmFtdGhianJzcWN0emdva3giLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczMjkyNzU3NCwiZXhwIjoyMDQ4NTAzNTc0fQ.Ej3haz4QlBUcrN4bfDLAKVQ_B8k3pp04'
+  );
+
+  // Función para hashear password
+  function simpleHash(password) {
+    return btoa(password);
+  }
 
   const registerForm = document.getElementById('registerForm');
   const submitBtn = registerForm?.querySelector('.submit-btn');
@@ -214,12 +224,12 @@ import Layout from '../layouts/Layout.astro';
   registerForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    const name = (document.getElementById('name') as HTMLInputElement).value;
-    const email = (document.getElementById('email') as HTMLInputElement).value;
-    const password = (document.getElementById('password') as HTMLInputElement).value;
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
 
     if (!name || !email || !password) {
-      (window as any).showNotification?.(
+      window.showNotification?.(
         'Por favor completa todos los campos',
         'error',
         'Campos Requeridos'
@@ -228,7 +238,7 @@ import Layout from '../layouts/Layout.astro';
     }
 
     if (password.length < 6) {
-      (window as any).showNotification?.(
+      window.showNotification?.(
         'La contraseña debe tener al menos 6 caracteres',
         'error',
         'Contraseña Inválida'
@@ -237,37 +247,56 @@ import Layout from '../layouts/Layout.astro';
     }
 
     if (submitBtn) {
-      (submitBtn as HTMLButtonElement).textContent = 'Creando cuenta...';
-      (submitBtn as HTMLButtonElement).disabled = true;
+      submitBtn.textContent = 'Creando cuenta...';
+      submitBtn.disabled = true;
     }
 
     try {
-      const result = await register(email, password, name);
+      // Verificar si el usuario ya existe
+      const { data: existingUser } = await supabase
+        .from('users')
+        .select('email')
+        .eq('email', email)
+        .single();
 
-      if (result.success) {
-        (window as any).showNotification?.(
-          'Tu cuenta ha sido creada exitosamente. Por favor inicia sesión.',
-          'success',
-          '¡Registro Exitoso!'
-        );
-        
-        setTimeout(() => {
-          window.location.href = '/login';
-        }, 1500);
-      } else {
-        throw new Error(result.error || 'Error al registrar usuario');
+      if (existingUser) {
+        throw new Error('Este email ya está registrado');
       }
-    } catch (error: any) {
+
+      // Crear nuevo usuario
+      const { data, error } = await supabase
+        .from('users')
+        .insert([{
+          email,
+          password: simpleHash(password),
+          name,
+          role: 'user'
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      window.showNotification?.(
+        'Tu cuenta ha sido creada exitosamente. Por favor inicia sesión.',
+        'success',
+        '¡Registro Exitoso!'
+      );
+      
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 1500);
+    } catch (error) {
       console.error('Error en registro:', error);
-      (window as any).showNotification?.(
+      window.showNotification?.(
         error.message || 'No se pudo completar el registro',
         'error',
         'Error al Registrarse'
       );
       
       if (submitBtn) {
-        (submitBtn as HTMLButtonElement).textContent = 'Registrarse';
-        (submitBtn as HTMLButtonElement).disabled = false;
+        submitBtn.textContent = 'Registrarse';
+        submitBtn.disabled = false;
       }
     }
   });

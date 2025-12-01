@@ -200,8 +200,18 @@ import Layout from '../layouts/Layout.astro';
   }
 </style>
 
-<script>
-  import { login } from '../lib/auth';
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+  
+  const supabase = createClient(
+    'https://szfamthbjrsqctzgokx.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZmFtdGhianJzcWN0emdva3giLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczMjkyNzU3NCwiZXhwIjoyMDQ4NTAzNTc0fQ.Ej3haz4QlBUcrN4bfDLAKVQ_B8k3pp04'
+  );
+
+  // Función para hashear password
+  function simpleHash(password) {
+    return btoa(password);
+  }
 
   const loginForm = document.getElementById('loginForm');
   const submitBtn = loginForm?.querySelector('.submit-btn');
@@ -209,11 +219,11 @@ import Layout from '../layouts/Layout.astro';
   loginForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    const email = (document.getElementById('email') as HTMLInputElement).value;
-    const password = (document.getElementById('password') as HTMLInputElement).value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
 
     if (!email || !password) {
-      (window as any).showNotification?.(
+      window.showNotification?.(
         'Por favor completa todos los campos',
         'error',
         'Campos Requeridos'
@@ -222,37 +232,54 @@ import Layout from '../layouts/Layout.astro';
     }
 
     if (submitBtn) {
-      (submitBtn as HTMLButtonElement).textContent = 'Iniciando sesión...';
-      (submitBtn as HTMLButtonElement).disabled = true;
+      submitBtn.textContent = 'Iniciando sesión...';
+      submitBtn.disabled = true;
     }
 
     try {
-      const result = await login(email, password);
+      // Buscar usuario en la tabla
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', email)
+        .eq('password', simpleHash(password))
+        .single();
 
-      if (result.success && result.user) {
-        (window as any).showNotification?.(
-          `Bienvenido de vuelta, ${result.user.name}`,
-          'success',
-          '¡Sesión Iniciada!'
-        );
-        
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 1000);
-      } else {
-        throw new Error(result.error || 'Error al iniciar sesión');
+      if (error || !data) {
+        throw new Error('Email o contraseña incorrectos');
       }
-    } catch (error: any) {
+
+      // Guardar en localStorage
+      const user = {
+        id: data.id,
+        email: data.email,
+        name: data.name,
+        role: data.role
+      };
+
+      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('isLoggedIn', 'true');
+
+      window.showNotification?.(
+        `Bienvenido de vuelta, ${user.name}`,
+        'success',
+        '¡Sesión Iniciada!'
+      );
+      
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 1000);
+    } catch (error) {
       console.error('Error en login:', error);
-      (window as any).showNotification?.(
+      window.showNotification?.(
         error.message || 'Email o contraseña incorrectos',
         'error',
         'Error al Iniciar Sesión'
       );
       
       if (submitBtn) {
-        (submitBtn as HTMLButtonElement).textContent = 'Iniciar Sesión';
-        (submitBtn as HTMLButtonElement).disabled = false;
+        submitBtn.textContent = 'Iniciar Sesión';
+        submitBtn.disabled = false;
       }
     }
   });
