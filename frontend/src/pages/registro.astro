@@ -145,7 +145,12 @@ import Layout from '../layouts/Layout.astro';
 </style>
 
 <script>
-  const API_URL = 'http://localhost:8080/api';
+  import { createClient } from '@supabase/supabase-js';
+  
+  const supabase = createClient(
+    'https://szfamthbjrsqctzgokx.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZmFtdGhianJzcWN0emdva3giLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczMjkyNzU3NCwiZXhwIjoyMDQ4NTAzNTc0fQ.Ej3haz4QlBUcrN4bfDLAKVQ_B8k3pp04'
+  );
 
   document.getElementById('registerForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -155,36 +160,42 @@ import Layout from '../layouts/Layout.astro';
     const password = (document.getElementById('password') as HTMLInputElement).value;
 
     try {
-      const response = await fetch(`${API_URL}/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password })
+      // Registrar en Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
       });
 
-      const data = await response.json();
+      if (authError) throw authError;
 
-      if (response.ok) {
-        (window as any).showNotification(
-          'Tu cuenta ha sido creada exitosamente',
-          'success',
-          '¡Registro Exitoso!'
-        );
-        setTimeout(() => {
-          window.location.href = '/login';
-        }, 1500);
-      } else {
-        (window as any).showNotification(
-          data.error || 'No se pudo completar el registro',
-          'error',
-          'Error al Registrarse'
-        );
+      // Crear registro en tabla users
+      if (authData.user) {
+        const { error: userError } = await supabase
+          .from('users')
+          .insert([{
+            email,
+            name,
+            password: '', // Supabase Auth maneja las contraseñas
+            role: 'user'
+          }]);
+
+        if (userError) throw userError;
       }
-    } catch (error) {
+
+      (window as any).showNotification(
+        'Tu cuenta ha sido creada exitosamente',
+        'success',
+        '¡Registro Exitoso!'
+      );
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 1500);
+    } catch (error: any) {
       console.error('Error:', error);
       (window as any).showNotification(
-        'No se pudo conectar con el servidor',
+        error.message || 'No se pudo completar el registro',
         'error',
-        'Error de Conexión'
+        'Error al Registrarse'
       );
     }
   });
