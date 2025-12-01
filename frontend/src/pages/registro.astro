@@ -142,31 +142,117 @@ import Layout from '../layouts/Layout.astro';
     color: var(--primary);
     font-weight: 600;
   }
+
+  /* Responsive Mobile Styles */
+  @media (max-width: 768px) {
+    .auth-container {
+      padding: 30px 16px;
+      min-height: 50vh;
+    }
+
+    .auth-box {
+      padding: 32px 24px;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 24px;
+    }
+
+    input {
+      padding: 12px 16px;
+      font-size: 15px;
+    }
+
+    .submit-btn {
+      padding: 16px;
+      font-size: 16px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .auth-container {
+      padding: 20px 12px;
+    }
+
+    .auth-box {
+      padding: 24px 20px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    input {
+      padding: 10px 14px;
+      font-size: 14px;
+    }
+
+    .submit-btn {
+      padding: 14px;
+      font-size: 15px;
+    }
+
+    .auth-link {
+      font-size: 14px;
+      margin-top: 20px;
+    }
+  }
 </style>
 
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
   
-  const supabase = createClient(
-    'https://szfamthbjrsqctzgokx.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZmFtdGhianJzcWN0emdva3giLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczMjkyNzU3NCwiZXhwIjoyMDQ4NTAzNTc0fQ.Ej3haz4QlBUcrN4bfDLAKVQ_B8k3pp04'
-  );
+  const supabaseUrl = 'https://szfamthbjrsqctzgokx.supabase.co';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZmFtdGhianJzcWN0emdva3giLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczMjkyNzU3NCwiZXhwIjoyMDQ4NTAzNTc0fQ.Ej3haz4QlBUcrN4bfDLAKVQ_B8k3pp04sb_pub813wha1e_E3haz4QlBUcrN4bfDLAKVQ_B8k3pp04';
+  
+  const supabase = createClient(supabaseUrl, supabaseKey);
 
-  document.getElementById('registerForm')?.addEventListener('submit', async (e) => {
+  const registerForm = document.getElementById('registerForm');
+  const submitBtn = registerForm?.querySelector('.submit-btn');
+
+  registerForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
     
     const name = (document.getElementById('name') as HTMLInputElement).value;
     const email = (document.getElementById('email') as HTMLInputElement).value;
     const password = (document.getElementById('password') as HTMLInputElement).value;
 
+    if (password.length < 6) {
+      (window as any).showNotification?.(
+        'La contraseña debe tener al menos 6 caracteres',
+        'error',
+        'Contraseña Inválida'
+      );
+      return;
+    }
+
+    if (submitBtn) {
+      submitBtn.textContent = 'Creando cuenta...';
+      submitBtn.disabled = true;
+    }
+
     try {
       // Registrar en Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            name: name
+          }
+        }
       });
 
-      if (authError) throw authError;
+      if (authError) {
+        console.error('Auth error:', authError);
+        throw authError;
+      }
 
       // Crear registro en tabla users
       if (authData.user) {
@@ -179,24 +265,46 @@ import Layout from '../layouts/Layout.astro';
             role: 'user'
           }]);
 
-        if (userError) throw userError;
+        if (userError) {
+          console.error('User table error:', userError);
+          // No lanzar error si ya existe el usuario en la tabla
+          if (!userError.message.includes('duplicate')) {
+            throw userError;
+          }
+        }
       }
 
-      (window as any).showNotification(
-        'Tu cuenta ha sido creada exitosamente',
+      (window as any).showNotification?.(
+        'Tu cuenta ha sido creada exitosamente. Por favor inicia sesión.',
         'success',
         '¡Registro Exitoso!'
       );
+      
       setTimeout(() => {
         window.location.href = '/login';
       }, 1500);
     } catch (error: any) {
-      console.error('Error:', error);
-      (window as any).showNotification(
-        error.message || 'No se pudo completar el registro',
+      console.error('Error en registro:', error);
+      let errorMessage = 'No se pudo completar el registro';
+      
+      if (error.message.includes('already registered')) {
+        errorMessage = 'Este email ya está registrado';
+      } else if (error.message.includes('invalid email')) {
+        errorMessage = 'Email inválido';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      (window as any).showNotification?.(
+        errorMessage,
         'error',
         'Error al Registrarse'
       );
+      
+      if (submitBtn) {
+        submitBtn.textContent = 'Registrarse';
+        submitBtn.disabled = false;
+      }
     }
   });
 </script>
