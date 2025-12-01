@@ -397,7 +397,12 @@ import Layout from '../layouts/Layout.astro';
 </style>
 
 <script>
-  const API_URL = 'http://localhost:8080/api';
+  import { createClient } from '@supabase/supabase-js';
+  
+  const supabase = createClient(
+    'https://szfamthbjrsqctzgokx.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZmFtdGhianJzcWN0emdva3giLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczMjkyNzU3NCwiZXhwIjoyMDQ4NTAzNTc0fQ.Ej3haz4QlBUcrN4bfDLAKVQ_B8k3pp04'
+  );
 
   function loadCart() {
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
@@ -490,8 +495,9 @@ import Layout from '../layouts/Layout.astro';
   });
 
   async function processOrder(paymentMethod: string) {
-    const token = localStorage.getItem('token');
-    if (!token) {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
       window.location.href = '/login';
       return;
     }
@@ -499,46 +505,63 @@ import Layout from '../layouts/Layout.astro';
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
 
     try {
-      const response = await fetch(`${API_URL}/orders`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          items: cart.map((item: any) => ({
-            product_id: parseInt(item.id),
-            quantity: item.quantity
-          }))
-        })
-      });
+      // Obtener el user_id de la tabla users
+      const { data: userData } = await supabase
+        .from('users')
+        .select('id')
+        .eq('email', user.email)
+        .single();
 
-      if (response.ok) {
-        localStorage.removeItem('cart');
-        window.dispatchEvent(new Event('cartUpdated'));
-        
-        (window as any).showNotification(
-          `Pago procesado exitosamente mediante ${paymentMethod === 'bank_transfer' ? 'transferencia bancaria' : 'PayPal'}`,
-          'success',
-          '¡Compra Realizada!'
-        );
-        
-        setTimeout(() => {
-          window.location.href = '/ordenes';
-        }, 2000);
-      } else {
-        (window as any).showNotification(
-          'Hubo un problema al procesar tu orden',
-          'error',
-          'Error'
-        );
-      }
-    } catch (error) {
+      if (!userData) throw new Error('Usuario no encontrado');
+
+      // Calcular total
+      const total = cart.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0);
+
+      // Crear orden
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert([{
+          user_id: userData.id,
+          total,
+          status: 'pending'
+        }])
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      // Crear items de la orden
+      const orderItems = cart.map((item: any) => ({
+        order_id: order.id,
+        product_id: parseInt(item.id),
+        quantity: item.quantity,
+        price: item.price
+      }));
+
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(orderItems);
+
+      if (itemsError) throw itemsError;
+
+      localStorage.removeItem('cart');
+      window.dispatchEvent(new Event('cartUpdated'));
+      
+      (window as any).showNotification(
+        `Pago procesado exitosamente mediante ${paymentMethod === 'bank_transfer' ? 'transferencia bancaria' : 'PayPal'}`,
+        'success',
+        '¡Compra Realizada!'
+      );
+      
+      setTimeout(() => {
+        window.location.href = '/ordenes';
+      }, 2000);
+    } catch (error: any) {
       console.error('Error:', error);
       (window as any).showNotification(
-        'No se pudo conectar con el servidor',
+        error.message || 'Hubo un problema al procesar tu orden',
         'error',
-        'Error de Conexión'
+        'Error'
       );
     }
   }
