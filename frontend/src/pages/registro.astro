@@ -10,18 +10,18 @@ import Layout from '../layouts/Layout.astro';
         
         <form id="registerForm">
           <div class="form-group">
-            <label>Nombre</label>
-            <input type="text" id="name" required>
+            <label for="name">Nombre</label>
+            <input type="text" id="name" name="name" autocomplete="name" required aria-required="true">
           </div>
           
           <div class="form-group">
-            <label>Email</label>
-            <input type="email" id="email" required>
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" autocomplete="email" required aria-required="true">
           </div>
           
           <div class="form-group">
-            <label>Contraseña</label>
-            <input type="password" id="password" required minlength="6">
+            <label for="password">Contraseña</label>
+            <input type="password" id="password" name="password" autocomplete="new-password" required minlength="6" aria-required="true">
           </div>
           
           <button type="submit" class="submit-btn">Registrarse</button>
