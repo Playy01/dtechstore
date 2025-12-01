@@ -208,10 +208,10 @@ import Layout from '../layouts/Layout.astro';
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
   
-  const supabase = createClient(
-    'https://szfamthbjrsqctzgokx.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZmFtdGhianJzcWN0emdva3giLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczMjkyNzU3NCwiZXhwIjoyMDQ4NTAzNTc0fQ.Ej3haz4QlBUcrN4bfDLAKVQ_B8k3pp04'
-  );
+  const SUPABASE_URL = 'https://szfamthbjrsqctzgokx.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZndudGtianJzcGNwdHpnb2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1MzcxODEsImV4cCI6MjA4MDExMzE4MX0.RHng44u3pPpUZwlb-W1KvoyCi7RTVNtmw7S7LjgG0G0';
+  
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
   // Función para hashear password
   function simpleHash(password) {
