@@ -432,20 +432,31 @@ export const prerender = true;
   }
 </style>
 
-<script>
-  const API_URL = 'http://localhost:8080/api';
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+  
+  const supabase = createClient(
+    'https://szfwntkbjrspcptzgoks.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZndudGtianJzcGNwdHpnb2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1MzcxODEsImV4cCI6MjA4MDExMzE4MX0.RHng44u3pPpUZwlb-W1KvoyCi7RTVNtmw7S7LjgG0G0'
+  );
+
   let quantity = 1;
-  let currentProduct: any = null;
+  let currentProduct = null;
 
   async function loadProduct() {
     const pathParts = window.location.pathname.split('/');
     const productId = pathParts[pathParts.length - 1];
 
     try {
-      const response = await fetch(`${API_URL}/products/${productId}`);
-      if (!response.ok) throw new Error('Producto no encontrado');
+      const { data: product, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', productId)
+        .single();
+
+      if (error) throw error;
       
-      currentProduct = await response.json();
+      currentProduct = product;
       displayProduct(currentProduct);
     } catch (error) {
       console.error('Error:', error);
@@ -456,7 +467,7 @@ export const prerender = true;
     }
   }
 
-  function displayProduct(product: any) {
+  function displayProduct(product) {
     const container = document.getElementById('productContent');
     if (!container) return;
 
@@ -541,7 +552,7 @@ export const prerender = true;
     }
   }
 
-  function setupQuantityControls(product: any) {
+  function setupQuantityControls(product) {
     const decreaseBtn = document.getElementById('decreaseQty');
     const increaseBtn = document.getElementById('increaseQty');
     const qtyDisplay = document.getElementById('qtyDisplay');
@@ -561,11 +572,11 @@ export const prerender = true;
     });
   }
 
-  function setupPurchaseButtons(product: any) {
+  function setupPurchaseButtons(product) {
     document.getElementById('addToCartBtn')?.addEventListener('click', () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        (window as any).showNotification(
+      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      if (!isLoggedIn) {
+        window.showNotification?.(
           'Por favor inicia sesión para agregar productos al carrito',
           'warning',
           'Sesión Requerida'
@@ -575,7 +586,7 @@ export const prerender = true;
       }
 
       const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      const existing = cart.find((item: any) => item.id === product.id.toString());
+      const existing = cart.find((item) => item.id === product.id.toString());
       
       if (existing) {
         existing.quantity += quantity;
@@ -592,7 +603,7 @@ export const prerender = true;
       localStorage.setItem('cart', JSON.stringify(cart));
       window.dispatchEvent(new Event('cartUpdated'));
       
-      (window as any).showNotification(
+      window.showNotification?.(
         `${quantity} ${quantity === 1 ? 'producto agregado' : 'productos agregados'} al carrito`,
         'success',
         '¡Agregado!'
@@ -600,9 +611,9 @@ export const prerender = true;
     });
 
     document.getElementById('buyNowBtn')?.addEventListener('click', () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        (window as any).showNotification(
+      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      if (!isLoggedIn) {
+        window.showNotification?.(
           'Por favor inicia sesión para realizar tu compra',
           'warning',
           'Sesión Requerida'
@@ -612,7 +623,7 @@ export const prerender = true;
       }
 
       const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      const existing = cart.find((item: any) => item.id === product.id.toString());
+      const existing = cart.find((item) => item.id === product.id.toString());
       
       if (existing) {
         existing.quantity += quantity;

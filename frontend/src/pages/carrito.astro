@@ -83,7 +83,7 @@ import Layout from '../layouts/Layout.astro';
 </style>
 
 <script>
-  const API_URL = 'http://localhost:8080/api';
+
 
   function loadCart() {
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
@@ -96,7 +96,7 @@ import Layout from '../layouts/Layout.astro';
       return;
     }
 
-    container.innerHTML = cart.map((item: any, index: number) => `
+    container.innerHTML = cart.map((item, index) => `
       <div class="cart-item">
         <img src="${item.image}" alt="${item.name}">
         <div class="item-details">
@@ -116,7 +116,7 @@ import Layout from '../layouts/Layout.astro';
     attachEventListeners();
   }
 
-  function updateTotal(cart: any[]) {
+  function updateTotal(cart) {
     const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const subtotalEl = document.getElementById('subtotal');
     const totalEl = document.getElementById('total');
@@ -128,7 +128,7 @@ import Layout from '../layouts/Layout.astro';
   function attachEventListeners() {
     document.querySelectorAll('.qty-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        const target = e.target as HTMLButtonElement;
+        const target = e.target;
         const index = parseInt(target.dataset.index || '0');
         const action = target.dataset.action;
         
