@@ -203,10 +203,16 @@ import Layout from '../layouts/Layout.astro';
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
   
-  const supabase = createClient(
-    'https://szfamthbjrsqctzgokx.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZmFtdGhianJzcWN0emdva3giLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczMjkyNzU3NCwiZXhwIjoyMDQ4NTAzNTc0fQ.Ej3haz4QlBUcrN4bfDLAKVQ_B8k3pp04'
-  );
+  // IMPORTANTE: Reemplaza esta clave con tu clave ANON KEY completa de Supabase
+  // Ve a: Settings → API → anon/public key
+  const SUPABASE_URL = 'https://szfamthbjrsqctzgokx.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZmFtdGhianJzcWN0emdva3giLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczMjkyNzU3NCwiZXhwIjoyMDQ4NTAzNTc0fQ.Ej3haz4QlBUcrN4bfDLAKVQ_B8k3pp04';
+  
+  console.log('Inicializando Supabase...');
+  console.log('URL:', SUPABASE_URL);
+  console.log('Key length:', SUPABASE_KEY.length);
+  
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
   // Función para hashear password
   function simpleHash(password) {
@@ -221,6 +227,8 @@ import Layout from '../layouts/Layout.astro';
     
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
+
+    console.log('Intentando login con:', email);
 
     if (!email || !password) {
       window.showNotification?.(
@@ -237,13 +245,27 @@ import Layout from '../layouts/Layout.astro';
     }
 
     try {
+      const hashedPassword = simpleHash(password);
+      console.log('Password hasheado:', hashedPassword);
+
+      // Primero intentar obtener todos los usuarios para debug
+      const { data: allUsers, error: debugError } = await supabase
+        .from('users')
+        .select('email, name, role');
+      
+      console.log('Usuarios disponibles:', allUsers);
+      console.log('Error de debug:', debugError);
+
       // Buscar usuario en la tabla
       const { data, error } = await supabase
         .from('users')
         .select('*')
         .eq('email', email)
-        .eq('password', simpleHash(password))
+        .eq('password', hashedPassword)
         .single();
+
+      console.log('Resultado de login:', data);
+      console.log('Error de login:', error);
 
       if (error || !data) {
         throw new Error('Email o contraseña incorrectos');
@@ -270,7 +292,7 @@ import Layout from '../layouts/Layout.astro';
         window.location.href = '/';
       }, 1000);
     } catch (error) {
-      console.error('Error en login:', error);
+      console.error('Error completo en login:', error);
       window.showNotification?.(
         error.message || 'Email o contraseña incorrectos',
         'error',
