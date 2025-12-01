@@ -99,6 +99,7 @@ import Layout from '../layouts/Layout.astro';
 
   async function loadProducts() {
     try {
+      console.log('Cargando productos...');
       const urlParams = new URLSearchParams(window.location.search);
       const category = urlParams.get('category');
       const search = urlParams.get('search');
@@ -115,12 +116,20 @@ import Layout from '../layouts/Layout.astro';
 
       const { data, error } = await query;
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error de Supabase:', error);
+        throw error;
+      }
       
+      console.log('Productos cargados:', data);
       allProducts = data || [];
       displayProducts(allProducts);
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error cargando productos:', error);
+      const grid = document.getElementById('productGrid');
+      if (grid) {
+        grid.innerHTML = '<p style="color: red;">Error al cargar productos. Revisa la consola.</p>';
+      }
     }
   }
 
@@ -236,8 +245,16 @@ import Layout from '../layouts/Layout.astro';
     displayProducts(sorted);
   });
 
-  loadProducts();
-  loadCategories();
+  // Esperar a que el DOM esté listo
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      loadProducts();
+      loadCategories();
+    });
+  } else {
+    loadProducts();
+    loadCategories();
+  }
 </script>
 
 
