@@ -18,8 +18,12 @@ const { title } = Astro.props;
   <meta name="description" content="DTech - Tu tienda de tecnología con los mejores productos de audio, teclados y mouse gaming">
   <meta name="theme-color" content="#6366f1">
   <link rel="preconnect" href="https://szfamthbjrsqctzgokx.supabase.co">
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <title>{title}</title>
+  <script>
+    // Configuración global de Supabase
+    window.SUPABASE_URL = 'https://szfamthbjrsqctzgokx.supabase.co';
+    window.SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZmFtdGhianJzcWN0emdva3giLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczMjkyNzU3NCwiZXhwIjoyMDQ4NTAzNTc0fQ.Ej3haz4QlBUcrN4bfDLAKVQ_B8k3pp04';
+  </script>
 </head>
 <body>
   <Header />

@@ -88,13 +88,6 @@ import Layout from '../layouts/Layout.astro';
 </style>
 
 <script>
-  const { createClient } = supabase;
-  
-  const supabaseClient = createClient(
-    'https://szfamthbjrsqctzgokx.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZmFtdGhianJzcWN0emdva3giLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczMjkyNzU3NCwiZXhwIjoyMDQ4NTAzNTc0fQ.Ej3haz4QlBUcrN4bfDLAKVQ_B8k3pp04'
-  );
-  
   let allProducts = [];
 
   async function loadProducts() {
@@ -104,23 +97,29 @@ import Layout from '../layouts/Layout.astro';
       const category = urlParams.get('category');
       const search = urlParams.get('search');
 
-      let query = supabaseClient.from('products').select('*');
+      // Construir URL de la API REST de Supabase
+      let url = `${window.SUPABASE_URL}/rest/v1/products?select=*`;
       
       if (category) {
-        query = query.eq('category', category);
+        url += `&category=eq.${encodeURIComponent(category)}`;
       }
       
       if (search) {
-        query = query.ilike('name', `%${search}%`);
+        url += `&name=ilike.*${encodeURIComponent(search)}*`;
       }
 
-      const { data, error } = await query;
+      const response = await fetch(url, {
+        headers: {
+          'apikey': window.SUPABASE_KEY,
+          'Authorization': `Bearer ${window.SUPABASE_KEY}`
+        }
+      });
       
-      if (error) {
-        console.error('Error de Supabase:', error);
-        throw error;
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
       
+      const data = await response.json();
       console.log('Productos cargados:', data);
       allProducts = data || [];
       displayProducts(allProducts);
@@ -135,11 +134,16 @@ import Layout from '../layouts/Layout.astro';
 
   async function loadCategories() {
     try {
-      const { data, error } = await supabaseClient
-        .from('products')
-        .select('category');
+      const response = await fetch(`${window.SUPABASE_URL}/rest/v1/products?select=category`, {
+        headers: {
+          'apikey': window.SUPABASE_KEY,
+          'Authorization': `Bearer ${window.SUPABASE_KEY}`
+        }
+      });
       
-      if (error) throw error;
+      if (!response.ok) throw new Error('Error loading categories');
+      
+      const data = await response.json();
       
       // Obtener categorías únicas
       const categories = [...new Set(data?.map(p => p.category).filter(Boolean))];
