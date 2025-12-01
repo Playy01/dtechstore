@@ -97,29 +97,25 @@ import Layout from '../layouts/Layout.astro';
       const category = urlParams.get('category');
       const search = urlParams.get('search');
 
-      // Construir URL de la API REST de Supabase
-      let url = `${window.SUPABASE_URL}/rest/v1/products?select=*`;
-      
-      if (category) {
-        url += `&category=eq.${encodeURIComponent(category)}`;
-      }
-      
-      if (search) {
-        url += `&name=ilike.*${encodeURIComponent(search)}*`;
-      }
-
-      const response = await fetch(url, {
-        headers: {
-          'apikey': window.SUPABASE_KEY,
-          'Authorization': `Bearer ${window.SUPABASE_KEY}`
-        }
-      });
+      // Cargar productos desde JSON local
+      const response = await fetch('/products.json');
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
-      const data = await response.json();
+      let data = await response.json();
+      
+      // Filtrar por categoría si existe
+      if (category) {
+        data = data.filter(p => p.category === category);
+      }
+      
+      // Filtrar por búsqueda si existe
+      if (search) {
+        data = data.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
+      }
+      
       console.log('Productos cargados:', data);
       allProducts = data || [];
       displayProducts(allProducts);
@@ -134,13 +130,7 @@ import Layout from '../layouts/Layout.astro';
 
   async function loadCategories() {
     try {
-      const response = await fetch(`${window.SUPABASE_URL}/rest/v1/products?select=category`, {
-        headers: {
-          'apikey': window.SUPABASE_KEY,
-          'Authorization': `Bearer ${window.SUPABASE_KEY}`
-        }
-      });
-      
+      const response = await fetch('/products.json');
       if (!response.ok) throw new Error('Error loading categories');
       
       const data = await response.json();

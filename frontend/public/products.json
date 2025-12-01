@@ -1,0 +1,74 @@
+[
+  {
+    "id": 1,
+    "name": "Free Wolf X7",
+    "description": "Audífonos gaming Free Wolf X7 con sonido envolvente 7.1 y micrófono con cancelación de ruido",
+    "price": 45.99,
+    "stock": 25,
+    "image_url": "/imagenes de catalogo/free wolf X7.webp",
+    "category": "Audífonos"
+  },
+  {
+    "id": 2,
+    "name": "Free Wolf K820",
+    "description": "Teclado mecánico gaming Free Wolf K820 con retroiluminación RGB y switches mecánicos",
+    "price": 79.99,
+    "stock": 15,
+    "image_url": "/imagenes de catalogo/free wolf k820.webp",
+    "category": "Teclados"
+  },
+  {
+    "id": 3,
+    "name": "Free Wolf M96",
+    "description": "Mouse gaming Free Wolf M96 con sensor óptico de alta precisión y 7 botones programables",
+    "price": 35.99,
+    "stock": 30,
+    "image_url": "/imagenes de catalogo/free wolf m96.webp",
+    "category": "Mouse"
+  },
+  {
+    "id": 4,
+    "name": "Free Wolf X15",
+    "description": "Audífonos inalámbricos Free Wolf X15 con Bluetooth 5.0 y batería de larga duración",
+    "price": 55.99,
+    "stock": 20,
+    "image_url": "/imagenes de catalogo/free wolf x15.webp",
+    "category": "Audífonos"
+  },
+  {
+    "id": 5,
+    "name": "Free Wolf X2",
+    "description": "Audífonos gaming Free Wolf X2 con iluminación LED y sonido estéreo de alta calidad",
+    "price": 39.99,
+    "stock": 35,
+    "image_url": "/imagenes de catalogo/free wolf x2.webp",
+    "category": "Audífonos"
+  },
+  {
+    "id": 6,
+    "name": "KZ Castor",
+    "description": "Audífonos in-ear KZ Castor con drivers dinámicos y diseño ergonómico",
+    "price": 29.99,
+    "stock": 40,
+    "image_url": "/imagenes de catalogo/kz castor.webp",
+    "category": "Audífonos"
+  },
+  {
+    "id": 7,
+    "name": "KZ EDX Lite",
+    "description": "Audífonos in-ear KZ EDX Lite con excelente calidad de sonido y diseño compacto",
+    "price": 19.99,
+    "stock": 50,
+    "image_url": "/imagenes de catalogo/kz edx lite.webp",
+    "category": "Audífonos"
+  },
+  {
+    "id": 8,
+    "name": "KZ EDX Pro",
+    "description": "Audífonos in-ear KZ EDX Pro con drivers mejorados y cable desmontable",
+    "price": 24.99,
+    "stock": 45,
+    "image_url": "/imagenes de catalogo/kz edx pro.webp",
+    "category": "Audífonos"
+  }
+]
