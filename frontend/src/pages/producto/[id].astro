@@ -1,14 +1,8 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 
-// Generar rutas estáticas para los productos
-export async function getStaticPaths() {
-  // Por ahora retornamos un array vacío
-  // Los productos se cargarán dinámicamente en el cliente
-  return [];
-}
-
-export const prerender = true;
+// Deshabilitar prerender para permitir rutas dinámicas
+export const prerender = false;
 ---
 
 <Layout title="Producto - DTech">
