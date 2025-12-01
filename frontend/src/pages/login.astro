@@ -200,13 +200,8 @@ import Layout from '../layouts/Layout.astro';
   }
 </style>
 
-<script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-  
-  const supabaseUrl = 'https://szfamthbjrsqctzgokx.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZmFtdGhianJzcWN0emdva3giLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczMjkyNzU3NCwiZXhwIjoyMDQ4NTAzNTc0fQ.Ej3haz4QlBUcrN4bfDLAKVQ_B8k3pp04';
-  
-  const supabase = createClient(supabaseUrl, supabaseKey);
+<script>
+  import { login } from '../lib/auth';
 
   const loginForm = document.getElementById('loginForm');
   const submitBtn = loginForm?.querySelector('.submit-btn');
@@ -217,46 +212,26 @@ import Layout from '../layouts/Layout.astro';
     const email = (document.getElementById('email') as HTMLInputElement).value;
     const password = (document.getElementById('password') as HTMLInputElement).value;
 
+    if (!email || !password) {
+      (window as any).showNotification?.(
+        'Por favor completa todos los campos',
+        'error',
+        'Campos Requeridos'
+      );
+      return;
+    }
+
     if (submitBtn) {
-      submitBtn.textContent = 'Iniciando sesión...';
-      submitBtn.disabled = true;
+      (submitBtn as HTMLButtonElement).textContent = 'Iniciando sesión...';
+      (submitBtn as HTMLButtonElement).disabled = true;
     }
 
     try {
-      // Intentar login con Supabase
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
+      const result = await login(email, password);
 
-      if (error) {
-        console.error('Supabase error:', error);
-        throw new Error('Credenciales incorrectas');
-      }
-
-      if (data.user) {
-        // Obtener información adicional del usuario desde la tabla users
-        const { data: userData, error: userError } = await supabase
-          .from('users')
-          .select('*')
-          .eq('email', email)
-          .single();
-
-        if (userError) {
-          console.error('Error obteniendo datos del usuario:', userError);
-        }
-
-        // Guardar en localStorage
-        localStorage.setItem('token', data.session?.access_token || '');
-        localStorage.setItem('user', JSON.stringify(userData || {
-          id: data.user.id,
-          email: data.user.email,
-          name: email.split('@')[0],
-          role: 'user'
-        }));
-        
+      if (result.success && result.user) {
         (window as any).showNotification?.(
-          `Bienvenido de vuelta, ${userData?.name || email}`,
+          `Bienvenido de vuelta, ${result.user.name}`,
           'success',
           '¡Sesión Iniciada!'
         );
@@ -264,6 +239,8 @@ import Layout from '../layouts/Layout.astro';
         setTimeout(() => {
           window.location.href = '/';
         }, 1000);
+      } else {
+        throw new Error(result.error || 'Error al iniciar sesión');
       }
     } catch (error: any) {
       console.error('Error en login:', error);
@@ -274,8 +251,8 @@ import Layout from '../layouts/Layout.astro';
       );
       
       if (submitBtn) {
-        submitBtn.textContent = 'Iniciar Sesión';
-        submitBtn.disabled = false;
+        (submitBtn as HTMLButtonElement).textContent = 'Iniciar Sesión';
+        (submitBtn as HTMLButtonElement).disabled = false;
       }
     }
   });

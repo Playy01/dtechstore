@@ -205,13 +205,8 @@ import Layout from '../layouts/Layout.astro';
   }
 </style>
 
-<script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-  
-  const supabaseUrl = 'https://szfamthbjrsqctzgokx.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZmFtdGhianJzcWN0emdva3giLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczMjkyNzU3NCwiZXhwIjoyMDQ4NTAzNTc0fQ.Ej3haz4QlBUcrN4bfDLAKVQ_B8k3pp04';
-  
-  const supabase = createClient(supabaseUrl, supabaseKey);
+<script>
+  import { register } from '../lib/auth';
 
   const registerForm = document.getElementById('registerForm');
   const submitBtn = registerForm?.querySelector('.submit-btn');
@@ -223,6 +218,15 @@ import Layout from '../layouts/Layout.astro';
     const email = (document.getElementById('email') as HTMLInputElement).value;
     const password = (document.getElementById('password') as HTMLInputElement).value;
 
+    if (!name || !email || !password) {
+      (window as any).showNotification?.(
+        'Por favor completa todos los campos',
+        'error',
+        'Campos Requeridos'
+      );
+      return;
+    }
+
     if (password.length < 6) {
       (window as any).showNotification?.(
         'La contraseña debe tener al menos 6 caracteres',
@@ -233,77 +237,37 @@ import Layout from '../layouts/Layout.astro';
     }
 
     if (submitBtn) {
-      submitBtn.textContent = 'Creando cuenta...';
-      submitBtn.disabled = true;
+      (submitBtn as HTMLButtonElement).textContent = 'Creando cuenta...';
+      (submitBtn as HTMLButtonElement).disabled = true;
     }
 
     try {
-      // Registrar en Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            name: name
-          }
-        }
-      });
+      const result = await register(email, password, name);
 
-      if (authError) {
-        console.error('Auth error:', authError);
-        throw authError;
+      if (result.success) {
+        (window as any).showNotification?.(
+          'Tu cuenta ha sido creada exitosamente. Por favor inicia sesión.',
+          'success',
+          '¡Registro Exitoso!'
+        );
+        
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 1500);
+      } else {
+        throw new Error(result.error || 'Error al registrar usuario');
       }
-
-      // Crear registro en tabla users
-      if (authData.user) {
-        const { error: userError } = await supabase
-          .from('users')
-          .insert([{
-            email,
-            name,
-            password: '', // Supabase Auth maneja las contraseñas
-            role: 'user'
-          }]);
-
-        if (userError) {
-          console.error('User table error:', userError);
-          // No lanzar error si ya existe el usuario en la tabla
-          if (!userError.message.includes('duplicate')) {
-            throw userError;
-          }
-        }
-      }
-
-      (window as any).showNotification?.(
-        'Tu cuenta ha sido creada exitosamente. Por favor inicia sesión.',
-        'success',
-        '¡Registro Exitoso!'
-      );
-      
-      setTimeout(() => {
-        window.location.href = '/login';
-      }, 1500);
     } catch (error: any) {
       console.error('Error en registro:', error);
-      let errorMessage = 'No se pudo completar el registro';
-      
-      if (error.message.includes('already registered')) {
-        errorMessage = 'Este email ya está registrado';
-      } else if (error.message.includes('invalid email')) {
-        errorMessage = 'Email inválido';
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
-      
       (window as any).showNotification?.(
-        errorMessage,
+        error.message || 'No se pudo completar el registro',
         'error',
         'Error al Registrarse'
       );
       
       if (submitBtn) {
-        submitBtn.textContent = 'Registrarse';
-        submitBtn.disabled = false;
+        (submitBtn as HTMLButtonElement).textContent = 'Registrarse';
+        (submitBtn as HTMLButtonElement).disabled = false;
       }
     }
   });
