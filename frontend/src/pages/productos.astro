@@ -156,8 +156,8 @@ import Layout from '../layouts/Layout.astro';
     }
 
     grid.innerHTML = products.map(product => `
-      <a href="/producto/${product.id}" class="product-card">
-        <img src="${product.image_url}" alt="${product.name}">
+      <a href="/producto/${product.id}" class="product-card" aria-label="Ver detalles de ${product.name}">
+        <img src="${product.image_url}" alt="${product.name}" loading="lazy" width="300" height="300">
         <h3>${product.name}</h3>
         <p class="price">$${product.price.toFixed(2)}</p>
         <button class="add-cart-btn" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}" data-image="${product.image_url}">

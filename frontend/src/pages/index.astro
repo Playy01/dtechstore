@@ -8,9 +8,9 @@ import Layout from '../layouts/Layout.astro';
       <div class="hero-content">
         <h1>Bienvenido a DTech</h1>
         <p>Descubre la mejor tecnología con estilo y calidad</p>
-        <a href="/productos" class="cta-button">
+        <a href="/productos" class="cta-button" aria-label="Explorar todos los productos disponibles">
           <span>Explorar Productos</span>
-          <span class="arrow">→</span>
+          <span class="arrow" aria-hidden="true">→</span>
         </a>
       </div>
       <div class="hero-decoration"></div>
@@ -20,19 +20,19 @@ import Layout from '../layouts/Layout.astro';
       <h2>Categorías Destacadas</h2>
       <div class="category-grid" id="categoryGrid">
         <div class="category-card">
-          <div class="category-icon">🎧</div>
+          <div class="category-icon" role="img" aria-label="Icono de audífonos">🎧</div>
           <h3>Audífonos</h3>
-          <a href="/productos?category=Audífonos" class="category-link">Ver más</a>
+          <a href="/productos?category=Audífonos" class="category-link" aria-label="Ver productos de audífonos">Ver más</a>
         </div>
         <div class="category-card">
-          <div class="category-icon">⌨️</div>
+          <div class="category-icon" role="img" aria-label="Icono de teclados">⌨️</div>
           <h3>Teclados</h3>
-          <a href="/productos?category=Teclados" class="category-link">Ver más</a>
+          <a href="/productos?category=Teclados" class="category-link" aria-label="Ver productos de teclados">Ver más</a>
         </div>
         <div class="category-card">
-          <div class="category-icon">🖱️</div>
+          <div class="category-icon" role="img" aria-label="Icono de mouse">🖱️</div>
           <h3>Mouse</h3>
-          <a href="/productos?category=Mouse" class="category-link">Ver más</a>
+          <a href="/productos?category=Mouse" class="category-link" aria-label="Ver productos de mouse">Ver más</a>
         </div>
       </div>
     </section>
@@ -189,7 +189,7 @@ import Layout from '../layouts/Layout.astro';
 
       grid.innerHTML = products.slice(0, 4).map((product: any) => `
         <div class="product-card">
-          <img src="${product.image_url}" alt="${product.name}">
+          <img src="${product.image_url}" alt="${product.name}" loading="lazy" width="300" height="300">
           <h3>${product.name}</h3>
           <p class="price">$${product.price.toFixed(2)}</p>
           <a href="/producto/${product.id}" class="view-btn">Ver Producto →</a>
