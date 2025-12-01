@@ -439,9 +439,9 @@ import Layout from '../../layouts/Layout.astro';
 
   document.getElementById('btnAddUser')?.addEventListener('click', () => {
     editingUserId = null;
-    (document.getElementById('modalTitle') as HTMLElement).textContent = 'Agregar Usuario';
-    (document.getElementById('userForm') as HTMLFormElement).reset();
-    (document.getElementById('passwordGroup') as HTMLElement).style.display = 'block';
+    document.getElementById('modalTitle').textContent = 'Agregar Usuario';
+    document.getElementById('userForm').reset();
+    document.getElementById('passwordGroup').style.display = 'block';
     document.getElementById('userModal')?.classList.add('active');
   });
 
