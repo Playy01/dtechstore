@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test de Sesión - BananaTech</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .info-box {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+      border-left: 4px solid #FFD93D;
+    }
+    .info-box h3 {
+      margin-top: 0;
+      color: #666;
+    }
+    .info-box pre {
+      background: #fff;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 12px;
+    }
+    .status {
+      display: inline-block;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+    }
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    button {
+      background: #FFD93D;
+      color: #333;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover {
+      background: #FFC107;
+    }
+    button.danger {
+      background: #dc3545;
+      color: white;
+    }
+    button.danger:hover {
+      background: #c82333;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🍌 Test de Sesión - BananaTech</h1>
+    
+    <div class="info-box">
+      <h3>Estado de Sesión</h3>
+      <div id="sessionStatus"></div>
+    </div>
+
+    <div class="info-box">
+      <h3>localStorage.getItem('isLoggedIn')</h3>
+      <pre id="isLoggedInValue"></pre>
+    </div>
+
+    <div class="info-box">
+      <h3>localStorage.getItem('user')</h3>
+      <pre id="userValue"></pre>
+    </div>
+
+    <div class="info-box">
+      <h3>Todo el localStorage</h3>
+      <pre id="allStorage"></pre>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <button onclick="testLogin()">🔐 Simular Login</button>
+      <button onclick="testLogout()" class="danger">🚪 Simular Logout</button>
+      <button onclick="location.reload()">🔄 Recargar</button>
+      <button onclick="window.location.href='/pago'">➡️ Ir a Pago</button>
+    </div>
+  </div>
+
+  <script>
+    function checkSession() {
+      const isLoggedIn = localStorage.getItem('isLoggedIn');
+      const userStr = localStorage.getItem('user');
+      
+      // Mostrar valores raw
+      document.getElementById('isLoggedInValue').textContent = 
+        `Valor: "${isLoggedIn}"\nTipo: ${typeof isLoggedIn}\nComparación === 'true': ${isLoggedIn === 'true'}`;
+      
+      document.getElementById('userValue').textContent = userStr || '(vacío)';
+      
+      // Mostrar todo localStorage
+      const allItems = {};
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        allItems[key] = localStorage.getItem(key);
+      }
+      document.getElementById('allStorage').textContent = JSON.stringify(allItems, null, 2);
+      
+      // Estado
+      const statusDiv = document.getElementById('sessionStatus');
+      if (isLoggedIn === 'true' && userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          statusDiv.innerHTML = `
+            <span class="status success">✅ SESIÓN ACTIVA</span>
+            <p><strong>Usuario:</strong> ${user.name || user.email}</p>
+            <p><strong>Email:</strong> ${user.email}</p>
+            <p><strong>ID:</strong> ${user.id}</p>
+            <p><strong>Rol:</strong> ${user.role}</p>
+          `;
+        } catch (e) {
+          statusDiv.innerHTML = `
+            <span class="status error">❌ ERROR: JSON inválido</span>
+            <p>${e.message}</p>
+          `;
+        }
+      } else {
+        statusDiv.innerHTML = `
+          <span class="status error">❌ NO HAY SESIÓN</span>
+          <p>isLoggedIn: ${isLoggedIn}</p>
+          <p>user: ${userStr ? 'existe pero isLoggedIn no es true' : 'no existe'}</p>
+        `;
+      }
+    }
+
+    function testLogin() {
+      const testUser = {
+        id: 999,
+        email: 'test@bananatech.com',
+        name: 'Usuario de Prueba',
+        role: 'user'
+      };
+      
+      localStorage.setItem('user', JSON.stringify(testUser));
+      localStorage.setItem('isLoggedIn', 'true');
+      
+      alert('✅ Login simulado guardado en localStorage');
+      checkSession();
+    }
+
+    function testLogout() {
+      localStorage.removeItem('user');
+      localStorage.removeItem('isLoggedIn');
+      
+      alert('🚪 Logout simulado - localStorage limpiado');
+      checkSession();
+    }
+
+    // Ejecutar al cargar
+    checkSession();
+
+    // Actualizar cada segundo
+    setInterval(checkSession, 1000);
+  </script>
+</body>
+</html>
