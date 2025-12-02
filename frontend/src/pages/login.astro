@@ -277,8 +277,23 @@ import Layout from '../layouts/Layout.astro';
         role: data.role
       };
 
+      console.log('=== GUARDANDO SESIÓN ===');
+      console.log('Usuario a guardar:', user);
+      
+      // Guardar múltiples veces para asegurar
       localStorage.setItem('user', JSON.stringify(user));
       localStorage.setItem('isLoggedIn', 'true');
+      
+      // Verificar que se guardó
+      const verificacion = {
+        user: localStorage.getItem('user'),
+        isLoggedIn: localStorage.getItem('isLoggedIn')
+      };
+      console.log('Verificación después de guardar:', verificacion);
+      
+      // Disparar evento para que otros componentes se enteren
+      window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new CustomEvent('userLoggedIn', { detail: user }));
 
       window.showNotification?.(
         `Bienvenido de vuelta, ${user.name}`,
@@ -286,8 +301,17 @@ import Layout from '../layouts/Layout.astro';
         '¡Sesión Iniciada!'
       );
       
+      // Verificar si hay redirect
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirect = urlParams.get('redirect');
+      
       setTimeout(() => {
-        window.location.href = '/';
+        if (redirect) {
+          console.log('Redirigiendo a:', redirect);
+          window.location.href = redirect;
+        } else {
+          window.location.href = '/';
+        }
       }, 1000);
     } catch (error) {
       console.error('Error completo en login:', error);

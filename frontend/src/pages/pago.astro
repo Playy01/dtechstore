@@ -416,16 +416,38 @@ import Layout from '../layouts/Layout.astro';
     const isLoggedIn = localStorage.getItem('isLoggedIn');
     const userStr = localStorage.getItem('user');
     
-    console.log('=== VERIFICACIÓN DE SESIÓN ===');
+    console.log('=== VERIFICACIÓN DE SESIÓN EN PAGO ===');
     console.log('isLoggedIn:', isLoggedIn);
     console.log('user:', userStr);
     console.log('Tipo de isLoggedIn:', typeof isLoggedIn);
     console.log('Comparación estricta:', isLoggedIn === 'true');
     
+    // Mostrar TODO el localStorage para debug
+    console.log('=== TODO EL LOCALSTORAGE ===');
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      console.log(`${key}:`, localStorage.getItem(key));
+    }
+    
     if (isLoggedIn !== 'true' || !userStr) {
-      console.log('❌ Sesión no válida, redirigiendo a login');
-      alert('Debes iniciar sesión para acceder al checkout');
-      window.location.href = '/login?redirect=/pago';
+      console.log('❌ Sesión no válida');
+      console.log('Esperando 2 segundos por si la sesión se está cargando...');
+      
+      // Esperar un poco por si la sesión se está cargando
+      setTimeout(() => {
+        const isLoggedInRetry = localStorage.getItem('isLoggedIn');
+        const userStrRetry = localStorage.getItem('user');
+        
+        console.log('=== REINTENTO DE VERIFICACIÓN ===');
+        console.log('isLoggedIn (retry):', isLoggedInRetry);
+        console.log('user (retry):', userStrRetry);
+        
+        if (isLoggedInRetry !== 'true' || !userStrRetry) {
+          alert('Debes iniciar sesión para acceder al checkout.\n\nDatos encontrados:\nisLoggedIn: ' + isLoggedInRetry + '\nuser: ' + (userStrRetry ? 'existe' : 'no existe'));
+          window.location.href = '/login?redirect=/pago';
+        }
+      }, 2000);
+      
       return false;
     }
     
@@ -435,6 +457,7 @@ import Layout from '../layouts/Layout.astro';
       return true;
     } catch (e) {
       console.error('Error al parsear usuario:', e);
+      alert('Error al leer datos de sesión. Por favor inicia sesión nuevamente.');
       localStorage.removeItem('user');
       localStorage.removeItem('isLoggedIn');
       window.location.href = '/login?redirect=/pago';
@@ -443,9 +466,7 @@ import Layout from '../layouts/Layout.astro';
   }
 
   // Verificar sesión inmediatamente
-  if (!checkSession()) {
-    throw new Error('Sesión no válida');
-  }
+  checkSession();
 
   function loadCart() {
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
