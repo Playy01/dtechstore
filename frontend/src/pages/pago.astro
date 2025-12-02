@@ -411,6 +411,42 @@ import Layout from '../layouts/Layout.astro';
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZndudGtianJzcGNwdHpnb2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1MzcxODEsImV4cCI6MjA4MDExMzE4MX0.RHng44u3pPpUZwlb-W1KvoyCi7RTVNtmw7S7LjgG0G0'
   );
 
+  // Verificar sesión al cargar la página
+  function checkSession() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const userStr = localStorage.getItem('user');
+    
+    console.log('=== VERIFICACIÓN DE SESIÓN ===');
+    console.log('isLoggedIn:', isLoggedIn);
+    console.log('user:', userStr);
+    console.log('Tipo de isLoggedIn:', typeof isLoggedIn);
+    console.log('Comparación estricta:', isLoggedIn === 'true');
+    
+    if (isLoggedIn !== 'true' || !userStr) {
+      console.log('❌ Sesión no válida, redirigiendo a login');
+      alert('Debes iniciar sesión para acceder al checkout');
+      window.location.href = '/login?redirect=/pago';
+      return false;
+    }
+    
+    try {
+      const user = JSON.parse(userStr);
+      console.log('✅ Usuario autenticado:', user);
+      return true;
+    } catch (e) {
+      console.error('Error al parsear usuario:', e);
+      localStorage.removeItem('user');
+      localStorage.removeItem('isLoggedIn');
+      window.location.href = '/login?redirect=/pago';
+      return false;
+    }
+  }
+
+  // Verificar sesión inmediatamente
+  if (!checkSession()) {
+    throw new Error('Sesión no válida');
+  }
+
   function loadCart() {
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
     const itemsContainer = document.getElementById('orderItems');
@@ -494,33 +530,23 @@ import Layout from '../layouts/Layout.astro';
 
   // Pago con Mercado Pago
   document.getElementById('mercadopagoButton')?.addEventListener('click', async () => {
+    // Ya verificamos la sesión al cargar la página, solo obtenemos los datos
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     const userStr = localStorage.getItem('user');
-    
-    console.log('Estado de autenticación:', { isLoggedIn, hasUser: !!userStr });
-    console.log('LocalStorage completo:', {
-      isLoggedIn: localStorage.getItem('isLoggedIn'),
-      user: localStorage.getItem('user')
-    });
-    
-    if (!isLoggedIn || !userStr) {
-      console.log('Usuario no autenticado, redirigiendo a login');
-      alert('Debes iniciar sesión para continuar con el pago');
-      window.location.href = '/login';
-      return;
-    }
+    const user = JSON.parse(userStr);
 
     if (cart.length === 0) {
       alert('Tu carrito está vacío');
+      window.location.href = '/carrito';
       return;
     }
 
-    const user = JSON.parse(userStr);
+    console.log('=== INICIANDO PAGO CON MERCADO PAGO ===');
     console.log('Usuario:', user);
+    console.log('Carrito:', cart);
     
     try {
-      alert('Creando orden de pago...');
+      console.log('Creando orden de pago...');
       
       // Crear preferencia de pago
       const items = cart.map(item => ({
@@ -545,7 +571,8 @@ import Layout from '../layouts/Layout.astro';
         external_reference: `bananatech_${Date.now()}_${user.id}`
       };
 
-      console.log('Preferencia de pago:', preference);
+      console.log('Preferencia creada:', preference);
+      console.log('Abriendo checkout de Mercado Pago...');
 
       // Crear checkout
       const checkout = mp.checkout({
@@ -553,10 +580,11 @@ import Layout from '../layouts/Layout.astro';
       });
 
       checkout.open();
+      console.log('✅ Checkout abierto exitosamente');
       
     } catch (error) {
-      console.error('Error:', error);
-      alert('Error al crear la orden de pago: ' + error.message);
+      console.error('❌ Error al crear checkout:', error);
+      alert('Error al crear la orden de pago. Por favor intenta de nuevo.');
     }
   });
 
