@@ -400,8 +400,8 @@ import Layout from '../layouts/Layout.astro';
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
   
   const supabase = createClient(
-    'https://szfamthbjrsqctzgokx.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZmFtdGhianJzcWN0emdva3giLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczMjkyNzU3NCwiZXhwIjoyMDQ4NTAzNTc0fQ.Ej3haz4QlBUcrN4bfDLAKVQ_B8k3pp04'
+    'https://szfwntkbjrspcptzgoks.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZndudGtianJzcGNwdHpnb2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1MzcxODEsImV4cCI6MjA4MDExMzE4MX0.RHng44u3pPpUZwlb-W1KvoyCi7RTVNtmw7S7LjgG0G0'
   );
 
   function loadCart() {
@@ -416,9 +416,9 @@ import Layout from '../layouts/Layout.astro';
       return;
     }
 
-    const total = cart.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0);
+    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-    itemsContainer.innerHTML = cart.map((item: any) => `
+    itemsContainer.innerHTML = cart.map((item) => `
       <div class="order-item">
         <img src="${item.image}" alt="${item.name}" class="item-image">
         <div class="item-details">
@@ -457,7 +457,7 @@ import Layout from '../layouts/Layout.astro';
 
   // Upload de comprobante
   document.getElementById('proofUpload')?.addEventListener('change', (e) => {
-    const input = e.target as HTMLInputElement;
+    const input = e.target;
     const fileName = document.getElementById('fileName');
     if (input.files && input.files[0] && fileName) {
       fileName.textContent = `Archivo seleccionado: ${input.files[0].name}`;
@@ -466,10 +466,10 @@ import Layout from '../layouts/Layout.astro';
 
   // Confirmar pago bancario
   document.getElementById('confirmBank')?.addEventListener('click', async () => {
-    const fileInput = document.getElementById('proofUpload') as HTMLInputElement;
+    const fileInput = document.getElementById('proofUpload');
     
     if (!fileInput.files || !fileInput.files[0]) {
-      (window as any).showNotification(
+      window.showNotification?.(
         'Por favor sube el comprobante de pago',
         'warning',
         'Comprobante Requerido'
@@ -482,11 +482,11 @@ import Layout from '../layouts/Layout.astro';
 
   // Pago con PayPal
   document.getElementById('paypalButton')?.addEventListener('click', async () => {
-    (window as any).showNotification(
+    window.showNotification?.(
       'Redirigiendo a PayPal...',
       'info',
       'Procesando'
-    );
+      );
     
     // Simular redirección a PayPal
     setTimeout(async () => {
@@ -494,34 +494,27 @@ import Layout from '../layouts/Layout.astro';
     }, 1500);
   });
 
-  async function processOrder(paymentMethod: string) {
-    const { data: { user } } = await supabase.auth.getUser();
+  async function processOrder(paymentMethod) {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const userStr = localStorage.getItem('user');
     
-    if (!user) {
+    if (!isLoggedIn || !userStr) {
       window.location.href = '/login';
       return;
     }
 
+    const user = JSON.parse(userStr);
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
 
     try {
-      // Obtener el user_id de la tabla users
-      const { data: userData } = await supabase
-        .from('users')
-        .select('id')
-        .eq('email', user.email)
-        .single();
-
-      if (!userData) throw new Error('Usuario no encontrado');
-
       // Calcular total
-      const total = cart.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0);
+      const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
       // Crear orden
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert([{
-          user_id: userData.id,
+          user_id: user.id,
           total,
           status: 'pending'
         }])
@@ -531,7 +524,7 @@ import Layout from '../layouts/Layout.astro';
       if (orderError) throw orderError;
 
       // Crear items de la orden
-      const orderItems = cart.map((item: any) => ({
+      const orderItems = cart.map((item) => ({
         order_id: order.id,
         product_id: parseInt(item.id),
         quantity: item.quantity,
@@ -547,7 +540,7 @@ import Layout from '../layouts/Layout.astro';
       localStorage.removeItem('cart');
       window.dispatchEvent(new Event('cartUpdated'));
       
-      (window as any).showNotification(
+      window.showNotification?.(
         `Pago procesado exitosamente mediante ${paymentMethod === 'bank_transfer' ? 'transferencia bancaria' : 'PayPal'}`,
         'success',
         '¡Compra Realizada!'
@@ -556,9 +549,9 @@ import Layout from '../layouts/Layout.astro';
       setTimeout(() => {
         window.location.href = '/ordenes';
       }, 2000);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error:', error);
-      (window as any).showNotification(
+      window.showNotification?.(
         error.message || 'Hubo un problema al procesar tu orden',
         'error',
         'Error'
