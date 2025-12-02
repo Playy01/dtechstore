@@ -411,7 +411,7 @@ import Layout from '../layouts/Layout.astro';
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZndudGtianJzcGNwdHpnb2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1MzcxODEsImV4cCI6MjA4MDExMzE4MX0.RHng44u3pPpUZwlb-W1KvoyCi7RTVNtmw7S7LjgG0G0'
   );
 
-  // Verificar sesión al cargar la página
+  // Verificar sesión (solo log, no redirigir)
   function checkSession() {
     const isLoggedIn = localStorage.getItem('isLoggedIn');
     const userStr = localStorage.getItem('user');
@@ -419,53 +419,23 @@ import Layout from '../layouts/Layout.astro';
     console.log('=== VERIFICACIÓN DE SESIÓN EN PAGO ===');
     console.log('isLoggedIn:', isLoggedIn);
     console.log('user:', userStr);
-    console.log('Tipo de isLoggedIn:', typeof isLoggedIn);
-    console.log('Comparación estricta:', isLoggedIn === 'true');
     
-    // Mostrar TODO el localStorage para debug
-    console.log('=== TODO EL LOCALSTORAGE ===');
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      console.log(`${key}:`, localStorage.getItem(key));
+    if (isLoggedIn === 'true' && userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        console.log('✅ Usuario autenticado:', user);
+        return true;
+      } catch (e) {
+        console.error('Error al parsear usuario:', e);
+        return false;
+      }
     }
     
-    if (isLoggedIn !== 'true' || !userStr) {
-      console.log('❌ Sesión no válida');
-      console.log('Esperando 2 segundos por si la sesión se está cargando...');
-      
-      // Esperar un poco por si la sesión se está cargando
-      setTimeout(() => {
-        const isLoggedInRetry = localStorage.getItem('isLoggedIn');
-        const userStrRetry = localStorage.getItem('user');
-        
-        console.log('=== REINTENTO DE VERIFICACIÓN ===');
-        console.log('isLoggedIn (retry):', isLoggedInRetry);
-        console.log('user (retry):', userStrRetry);
-        
-        if (isLoggedInRetry !== 'true' || !userStrRetry) {
-          alert('Debes iniciar sesión para acceder al checkout.\n\nDatos encontrados:\nisLoggedIn: ' + isLoggedInRetry + '\nuser: ' + (userStrRetry ? 'existe' : 'no existe'));
-          window.location.href = '/login?redirect=/pago';
-        }
-      }, 2000);
-      
-      return false;
-    }
-    
-    try {
-      const user = JSON.parse(userStr);
-      console.log('✅ Usuario autenticado:', user);
-      return true;
-    } catch (e) {
-      console.error('Error al parsear usuario:', e);
-      alert('Error al leer datos de sesión. Por favor inicia sesión nuevamente.');
-      localStorage.removeItem('user');
-      localStorage.removeItem('isLoggedIn');
-      window.location.href = '/login?redirect=/pago';
-      return false;
-    }
+    console.log('⚠️ No hay sesión activa');
+    return false;
   }
 
-  // Verificar sesión inmediatamente
+  // Solo verificar, no redirigir automáticamente
   checkSession();
 
   function loadCart() {
@@ -535,6 +505,16 @@ import Layout from '../layouts/Layout.astro';
 
   // Confirmar pago bancario
   document.getElementById('confirmBank')?.addEventListener('click', async () => {
+    // Verificar sesión
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const userStr = localStorage.getItem('user');
+    
+    if (isLoggedIn !== 'true' || !userStr) {
+      alert('Debes iniciar sesión para continuar');
+      window.location.href = '/login?redirect=/pago';
+      return;
+    }
+    
     const fileInput = document.getElementById('proofUpload');
     
     if (!fileInput.files || !fileInput.files[0]) {
@@ -551,9 +531,21 @@ import Layout from '../layouts/Layout.astro';
 
   // Pago con Mercado Pago
   document.getElementById('mercadopagoButton')?.addEventListener('click', async () => {
-    // Ya verificamos la sesión al cargar la página, solo obtenemos los datos
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    // Verificar sesión al hacer click
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
     const userStr = localStorage.getItem('user');
+    
+    console.log('=== CLICK EN BOTÓN MERCADO PAGO ===');
+    console.log('isLoggedIn:', isLoggedIn);
+    console.log('userStr:', userStr);
+    
+    if (isLoggedIn !== 'true' || !userStr) {
+      alert('Debes iniciar sesión para continuar con el pago');
+      window.location.href = '/login?redirect=/pago';
+      return;
+    }
+    
+    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
     const user = JSON.parse(userStr);
 
     if (cart.length === 0) {
