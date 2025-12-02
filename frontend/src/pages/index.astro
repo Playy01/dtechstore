@@ -89,16 +89,33 @@ import Layout from '../layouts/Layout.astro';
   }
 
   .dynamic-message {
-    transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), 
+                transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     min-height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
+    transform-origin: center;
   }
 
   .dynamic-message.fade-out {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-15px) scale(0.98);
+  }
+
+  .dynamic-message.fade-in {
+    animation: slideInMessage 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes slideInMessage {
+    from {
+      opacity: 0;
+      transform: translateY(15px) scale(0.98);
+    }
+    to {
+      opacity: 0.95;
+      transform: translateY(0) scale(1);
+    }
   }
 
   .cta-button {
@@ -213,21 +230,28 @@ import Layout from '../layouts/Layout.astro';
     const messageElement = document.getElementById('dynamicMessage');
     if (!messageElement) return;
 
-    // Fade out
+    // Fade out con animación suave
     messageElement.classList.add('fade-out');
+    messageElement.classList.remove('fade-in');
 
     setTimeout(() => {
       // Cambiar mensaje
       currentMessageIndex = (currentMessageIndex + 1) % messages.length;
       messageElement.textContent = messages[currentMessageIndex];
       
-      // Fade in
+      // Fade in con animación suave
       messageElement.classList.remove('fade-out');
-    }, 500);
+      messageElement.classList.add('fade-in');
+      
+      // Remover clase fade-in después de la animación
+      setTimeout(() => {
+        messageElement.classList.remove('fade-in');
+      }, 800);
+    }, 800);
   }
 
-  // Cambiar mensaje cada 2 segundos
-  setInterval(changeMessage, 2000);
+  // Cambiar mensaje cada 4 segundos
+  setInterval(changeMessage, 4000);
 
   async function loadFeaturedProducts() {
     try {
