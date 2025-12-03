@@ -411,14 +411,37 @@ import Layout from '../layouts/Layout.astro';
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZndudGtianJzcGNwdHpnb2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1MzcxODEsImV4cCI6MjA4MDExMzE4MX0.RHng44u3pPpUZwlb-W1KvoyCi7RTVNtmw7S7LjgG0G0'
   );
 
+  // Función para obtener sesión de cualquier storage
+  function getSession() {
+    // Intentar localStorage primero
+    let isLoggedIn = localStorage.getItem('isLoggedIn');
+    let userStr = localStorage.getItem('user');
+    
+    // Si no está en localStorage, intentar sessionStorage
+    if (!isLoggedIn || !userStr) {
+      isLoggedIn = sessionStorage.getItem('isLoggedIn');
+      userStr = sessionStorage.getItem('user');
+      
+      // Si está en sessionStorage, copiar a localStorage
+      if (isLoggedIn && userStr) {
+        localStorage.setItem('isLoggedIn', isLoggedIn);
+        localStorage.setItem('user', userStr);
+        console.log('📋 Sesión copiada de sessionStorage a localStorage');
+      }
+    }
+    
+    return { isLoggedIn, userStr };
+  }
+
   // Verificar sesión (solo log, no redirigir)
   function checkSession() {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const userStr = localStorage.getItem('user');
+    const { isLoggedIn, userStr } = getSession();
     
     console.log('=== VERIFICACIÓN DE SESIÓN EN PAGO ===');
-    console.log('isLoggedIn:', isLoggedIn);
-    console.log('user:', userStr);
+    console.log('localStorage.isLoggedIn:', localStorage.getItem('isLoggedIn'));
+    console.log('localStorage.user:', localStorage.getItem('user'));
+    console.log('sessionStorage.isLoggedIn:', sessionStorage.getItem('isLoggedIn'));
+    console.log('sessionStorage.user:', sessionStorage.getItem('user'));
     
     if (isLoggedIn === 'true' && userStr) {
       try {
@@ -431,7 +454,7 @@ import Layout from '../layouts/Layout.astro';
       }
     }
     
-    console.log('⚠️ No hay sesión activa');
+    console.log('⚠️ No hay sesión activa en ningún storage');
     return false;
   }
 
@@ -506,8 +529,7 @@ import Layout from '../layouts/Layout.astro';
   // Confirmar pago bancario
   document.getElementById('confirmBank')?.addEventListener('click', async () => {
     // Verificar sesión
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const userStr = localStorage.getItem('user');
+    const { isLoggedIn, userStr } = getSession();
     
     if (isLoggedIn !== 'true' || !userStr) {
       alert('Debes iniciar sesión para continuar');
@@ -531,16 +553,17 @@ import Layout from '../layouts/Layout.astro';
 
   // Pago con Mercado Pago
   document.getElementById('mercadopagoButton')?.addEventListener('click', async () => {
-    // Verificar sesión al hacer click
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const userStr = localStorage.getItem('user');
+    // Verificar sesión al hacer click (intentar ambos storages)
+    const { isLoggedIn, userStr } = getSession();
     
     console.log('=== CLICK EN BOTÓN MERCADO PAGO ===');
     console.log('isLoggedIn:', isLoggedIn);
-    console.log('userStr:', userStr);
+    console.log('userStr existe:', !!userStr);
+    console.log('userStr length:', userStr?.length);
     
     if (isLoggedIn !== 'true' || !userStr) {
-      alert('Debes iniciar sesión para continuar con el pago');
+      console.log('❌ No hay sesión válida');
+      alert('Debes iniciar sesión para continuar con el pago.\n\nSerás redirigido al login.');
       window.location.href = '/login?redirect=/pago';
       return;
     }

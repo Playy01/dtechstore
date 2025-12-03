@@ -269,7 +269,7 @@ import Layout from '../layouts/Layout.astro';
         throw new Error('Email o contraseña incorrectos');
       }
 
-      // Guardar en localStorage
+      // Guardar en localStorage Y sessionStorage
       const user = {
         id: data.id,
         email: data.email,
@@ -280,39 +280,59 @@ import Layout from '../layouts/Layout.astro';
       console.log('=== GUARDANDO SESIÓN ===');
       console.log('Usuario a guardar:', user);
       
-      // Guardar múltiples veces para asegurar
-      localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('isLoggedIn', 'true');
+      const userJSON = JSON.stringify(user);
+      
+      // Guardar en AMBOS storages
+      try {
+        localStorage.clear(); // Limpiar todo primero
+        localStorage.setItem('user', userJSON);
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userEmail', user.email);
+        localStorage.setItem('userName', user.name);
+        
+        sessionStorage.setItem('user', userJSON);
+        sessionStorage.setItem('isLoggedIn', 'true');
+        
+        console.log('✅ Guardado en localStorage');
+        console.log('✅ Guardado en sessionStorage');
+      } catch (e) {
+        console.error('❌ Error al guardar:', e);
+      }
       
       // Verificar que se guardó
-      const verificacion = {
-        user: localStorage.getItem('user'),
-        isLoggedIn: localStorage.getItem('isLoggedIn')
-      };
-      console.log('Verificación después de guardar:', verificacion);
-      
-      // Disparar evento para que otros componentes se enteren
-      window.dispatchEvent(new Event('storage'));
-      window.dispatchEvent(new CustomEvent('userLoggedIn', { detail: user }));
-
-      window.showNotification?.(
-        `Bienvenido de vuelta, ${user.name}`,
-        'success',
-        '¡Sesión Iniciada!'
-      );
-      
-      // Verificar si hay redirect
-      const urlParams = new URLSearchParams(window.location.search);
-      const redirect = urlParams.get('redirect');
-      
       setTimeout(() => {
-        if (redirect) {
-          console.log('Redirigiendo a:', redirect);
-          window.location.href = redirect;
-        } else {
-          window.location.href = '/';
-        }
-      }, 1000);
+        const verificacion = {
+          localStorage_user: localStorage.getItem('user'),
+          localStorage_isLoggedIn: localStorage.getItem('isLoggedIn'),
+          sessionStorage_user: sessionStorage.getItem('user'),
+          sessionStorage_isLoggedIn: sessionStorage.getItem('isLoggedIn')
+        };
+        console.log('=== VERIFICACIÓN DESPUÉS DE GUARDAR ===');
+        console.log(verificacion);
+        
+        // Disparar eventos
+        window.dispatchEvent(new Event('storage'));
+        window.dispatchEvent(new CustomEvent('userLoggedIn', { detail: user }));
+
+        window.showNotification?.(
+          `Bienvenido de vuelta, ${user.name}`,
+          'success',
+          '¡Sesión Iniciada!'
+        );
+        
+        // Verificar si hay redirect
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirect = urlParams.get('redirect');
+        
+        setTimeout(() => {
+          if (redirect) {
+            console.log('Redirigiendo a:', redirect);
+            window.location.href = redirect;
+          } else {
+            window.location.href = '/';
+          }
+        }, 500);
+      }, 100);
     } catch (error) {
       console.error('Error completo en login:', error);
       window.showNotification?.(
