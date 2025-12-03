@@ -26,12 +26,14 @@
   --radius-lg: 24px;
 }
 
-body {
+html, body {
   font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: var(--bg-secondary);
   color: var(--text-primary);
   line-height: 1.6;
   overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
 }
 
 @keyframes fadeInUp {
@@ -102,4 +104,76 @@ a {
 input, select, textarea {
   font-family: inherit;
   font-size: inherit;
+}
+
+/* Mejoras para móviles */
+@media (max-width: 768px) {
+  body {
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  .container {
+    padding: 0 16px;
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  /* Evitar scroll horizontal */
+  * {
+    max-width: 100%;
+  }
+
+  /* Imágenes responsive */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Tablas responsive */
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  /* Textos más pequeños en móvil */
+  h1 {
+    font-size: 28px !important;
+  }
+
+  h2 {
+    font-size: 24px !important;
+  }
+
+  h3 {
+    font-size: 20px !important;
+  }
+
+  /* Botones más grandes para touch */
+  button, .btn {
+    min-height: 44px;
+    padding: 12px 20px;
+  }
+
+  /* Inputs más grandes */
+  input, select, textarea {
+    min-height: 44px;
+    font-size: 16px; /* Evita zoom en iOS */
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 12px;
+  }
+
+  h1 {
+    font-size: 24px !important;
+  }
+
+  h2 {
+    font-size: 20px !important;
+  }
 }
