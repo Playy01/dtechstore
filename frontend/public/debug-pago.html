@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Debug Pago - BananaTech</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    h1 {
+      background: linear-gradient(135deg, #FFD93D 0%, #FFC107 100%);
+      color: #333;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .box {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .box h2 {
+      color: #333;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #FFD93D;
+    }
+    .status {
+      display: inline-block;
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-weight: bold;
+      margin: 10px 0;
+      font-size: 18px;
+    }
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+    }
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    .data {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 10px 0;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      overflow-x: auto;
+    }
+    .data pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    .label {
+      font-weight: bold;
+      color: #666;
+      margin-top: 10px;
+      display: block;
+    }
+    button {
+      background: #FFD93D;
+      color: #333;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 5px;
+      font-size: 16px;
+    }
+    button:hover {
+      background: #FFC107;
+    }
+    button.danger {
+      background: #dc3545;
+      color: white;
+    }
+    button.primary {
+      background: #007bff;
+      color: white;
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    .emoji {
+      font-size: 24px;
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🍌 Debug de Pago - BananaTech</h1>
+    
+    <div class="box">
+      <h2><span class="emoji">🔐</span>Estado de Sesión</h2>
+      <div id="sessionStatus"></div>
+    </div>
+
+    <div class="box">
+      <h2><span class="emoji">💾</span>localStorage</h2>
+      <div class="label">isLoggedIn:</div>
+      <div class="data" id="ls_isLoggedIn"></div>
+      <div class="label">user:</div>
+      <div class="data" id="ls_user"></div>
+      <div class="label">Todos los items:</div>
+      <div class="data" id="ls_all"></div>
+    </div>
+
+    <div class="box">
+      <h2><span class="emoji">📝</span>sessionStorage</h2>
+      <div class="label">isLoggedIn:</div>
+      <div class="data" id="ss_isLoggedIn"></div>
+      <div class="label">user:</div>
+      <div class="data" id="ss_user"></div>
+      <div class="label">Todos los items:</div>
+      <div class="data" id="ss_all"></div>
+    </div>
+
+    <div class="box">
+      <h2><span class="emoji">🛒</span>Carrito</h2>
+      <div id="cartInfo"></div>
+    </div>
+
+    <div class="box">
+      <h2><span class="emoji">🔧</span>Acciones</h2>
+      <div class="actions">
+        <button onclick="location.reload()">🔄 Recargar</button>
+        <button onclick="window.location.href='/login'">🔐 Ir a Login</button>
+        <button onclick="window.location.href='/pago'" class="primary">💳 Ir a Pago</button>
+        <button onclick="testLogin()">✅ Simular Login</button>
+        <button onclick="clearAll()" class="danger">🗑️ Limpiar Todo</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function checkAll() {
+      // localStorage
+      const ls_isLoggedIn = localStorage.getItem('isLoggedIn');
+      const ls_user = localStorage.getItem('user');
+      
+      // sessionStorage
+      const ss_isLoggedIn = sessionStorage.getItem('isLoggedIn');
+      const ss_user = sessionStorage.getItem('user');
+      
+      // Mostrar localStorage
+      document.getElementById('ls_isLoggedIn').innerHTML = `<pre>${ls_isLoggedIn || '(vacío)'}</pre>`;
+      document.getElementById('ls_user').innerHTML = `<pre>${ls_user || '(vacío)'}</pre>`;
+      
+      const allLS = {};
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        allLS[key] = localStorage.getItem(key);
+      }
+      document.getElementById('ls_all').innerHTML = `<pre>${JSON.stringify(allLS, null, 2)}</pre>`;
+      
+      // Mostrar sessionStorage
+      document.getElementById('ss_isLoggedIn').innerHTML = `<pre>${ss_isLoggedIn || '(vacío)'}</pre>`;
+      document.getElementById('ss_user').innerHTML = `<pre>${ss_user || '(vacío)'}</pre>`;
+      
+      const allSS = {};
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const key = sessionStorage.key(i);
+        allSS[key] = sessionStorage.getItem(key);
+      }
+      document.getElementById('ss_all').innerHTML = `<pre>${JSON.stringify(allSS, null, 2)}</pre>`;
+      
+      // Estado de sesión
+      const statusDiv = document.getElementById('sessionStatus');
+      if ((ls_isLoggedIn === 'true' || ss_isLoggedIn === 'true') && (ls_user || ss_user)) {
+        try {
+          const user = JSON.parse(ls_user || ss_user);
+          statusDiv.innerHTML = `
+            <span class="status success">✅ SESIÓN ACTIVA</span>
+            <div class="data">
+              <strong>Nombre:</strong> ${user.name}<br>
+              <strong>Email:</strong> ${user.email}<br>
+              <strong>ID:</strong> ${user.id}<br>
+              <strong>Rol:</strong> ${user.role}<br>
+              <strong>Fuente:</strong> ${ls_user ? 'localStorage' : 'sessionStorage'}
+            </div>
+          `;
+        } catch (e) {
+          statusDiv.innerHTML = `
+            <span class="status error">❌ ERROR: JSON inválido</span>
+            <div class="data">${e.message}</div>
+          `;
+        }
+      } else {
+        statusDiv.innerHTML = `
+          <span class="status error">❌ NO HAY SESIÓN ACTIVA</span>
+          <div class="data">
+            localStorage.isLoggedIn: ${ls_isLoggedIn}<br>
+            localStorage.user: ${ls_user ? 'existe' : 'no existe'}<br>
+            sessionStorage.isLoggedIn: ${ss_isLoggedIn}<br>
+            sessionStorage.user: ${ss_user ? 'existe' : 'no existe'}
+          </div>
+        `;
+      }
+      
+      // Carrito
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const cartDiv = document.getElementById('cartInfo');
+      if (cart.length > 0) {
+        const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        cartDiv.innerHTML = `
+          <div class="status success">✅ ${cart.length} producto(s) en el carrito</div>
+          <div class="data">
+            <strong>Total:</strong> $${total.toFixed(2)}<br>
+            <strong>Productos:</strong><br>
+            ${cart.map(item => `- ${item.name} x${item.quantity} = $${(item.price * item.quantity).toFixed(2)}`).join('<br>')}
+          </div>
+        `;
+      } else {
+        cartDiv.innerHTML = `<div class="status error">❌ Carrito vacío</div>`;
+      }
+    }
+
+    function testLogin() {
+      const testUser = {
+        id: 999,
+        email: 'test@bananatech.com',
+        name: 'Usuario de Prueba',
+        role: 'user'
+      };
+      
+      const userJSON = JSON.stringify(testUser);
+      localStorage.setItem('user', userJSON);
+      localStorage.setItem('isLoggedIn', 'true');
+      sessionStorage.setItem('user', userJSON);
+      sessionStorage.setItem('isLoggedIn', 'true');
+      
+      alert('✅ Login de prueba creado');
+      checkAll();
+    }
+
+    function clearAll() {
+      if (confirm('¿Seguro que quieres limpiar TODO el storage?')) {
+        localStorage.clear();
+        sessionStorage.clear();
+        alert('🗑️ Todo limpiado');
+        checkAll();
+      }
+    }
+
+    // Ejecutar al cargar
+    checkAll();
+
+    // Actualizar cada 2 segundos
+    setInterval(checkAll, 2000);
+  </script>
+</body>
+</html>
