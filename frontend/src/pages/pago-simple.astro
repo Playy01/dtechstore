@@ -1,0 +1,441 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Realizar Pago - BananaTech">
+  <div class="container">
+    <h1>💳 Realizar Pago</h1>
+    
+    <div class="payment-layout">
+      <!-- Resumen del pedido -->
+      <div class="order-summary">
+        <h2>Resumen del Pedido</h2>
+        <div id="orderItems" class="order-items"></div>
+        <div class="summary-total">
+          <span>Total a Pagar:</span>
+          <span class="total-amount" id="totalAmount">$0.00</span>
+        </div>
+      </div>
+
+      <!-- Formulario de pago -->
+      <div class="payment-form">
+        <h2>Método de Pago</h2>
+        <p class="subtitle">Selecciona cómo deseas pagar</p>
+
+        <!-- Transferencia Bancaria -->
+        <div class="payment-method">
+          <div class="method-header">
+            <div class="method-icon">🏦</div>
+            <div>
+              <h3>Transferencia Bancaria</h3>
+              <p>Realiza una transferencia a nuestra cuenta</p>
+            </div>
+          </div>
+
+          <div class="bank-details">
+            <div class="detail-item">
+              <span class="label">Banco:</span>
+              <span class="value">Banco Nacional</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Titular:</span>
+              <span class="value">BananaTech Store S.A.</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Cuenta:</span>
+              <span class="value">1234-5678-9012-3456</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">CLABE:</span>
+              <span class="value">012345678901234567</span>
+            </div>
+          </div>
+
+          <div class="upload-section">
+            <label for="proofUpload" class="upload-label">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"></path>
+              </svg>
+              <span>Subir Comprobante de Pago</span>
+              <input type="file" id="proofUpload" accept="image/*,.pdf" style="display: none;">
+            </label>
+            <div id="fileName" class="file-name"></div>
+          </div>
+
+          <button class="btn-confirm" id="confirmBtn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 11l3 3L22 4"></path>
+              <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
+            </svg>
+            Confirmar Pedido
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
+
+  h1 {
+    font-size: 36px;
+    font-weight: 800;
+    margin-bottom: 32px;
+    background: var(--bg-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .payment-layout {
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    gap: 32px;
+  }
+
+  .order-summary {
+    background: white;
+    padding: 32px;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    height: fit-content;
+    position: sticky;
+    top: 100px;
+  }
+
+  .order-summary h2 {
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 24px;
+  }
+
+  .order-items {
+    margin-bottom: 24px;
+  }
+
+  .order-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .order-item:last-child {
+    border-bottom: none;
+  }
+
+  .item-image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+
+  .item-info {
+    flex: 1;
+  }
+
+  .item-name {
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .item-quantity {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  .summary-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 24px;
+    margin-top: 24px;
+    border-top: 2px solid var(--border);
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .total-amount {
+    font-size: 32px;
+    color: var(--primary);
+  }
+
+  .payment-form {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+
+  .payment-form h2 {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    color: var(--text-secondary);
+    margin-bottom: 32px;
+  }
+
+  .payment-method {
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+  }
+
+  .method-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .method-icon {
+    width: 60px;
+    height: 60px;
+    background: var(--bg-secondary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+  }
+
+  .method-header h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .method-header p {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  .bank-details {
+    background: var(--bg-secondary);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+  }
+
+  .detail-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .detail-item:last-child {
+    border-bottom: none;
+  }
+
+  .label {
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .value {
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+  }
+
+  .upload-section {
+    margin-bottom: 24px;
+  }
+
+  .upload-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 40px;
+    background: var(--bg-secondary);
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .upload-label:hover {
+    border-color: var(--primary);
+    background: rgba(99, 102, 241, 0.05);
+  }
+
+  .upload-label span {
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .file-name {
+    margin-top: 12px;
+    font-size: 14px;
+    color: var(--primary);
+    text-align: center;
+    font-weight: 600;
+  }
+
+  .btn-confirm {
+    width: 100%;
+    padding: 18px;
+    background: var(--bg-gradient);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    transition: all 0.3s;
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+  }
+
+  .btn-confirm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+  }
+
+  .btn-confirm:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  @media (max-width: 968px) {
+    .payment-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .order-summary {
+      position: static;
+    }
+  }
+</style>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+  
+  const supabase = createClient(
+    'https://szfwntkbjrspcptzgoks.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZndudGtianJzcGNwdHpnb2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1MzcxODEsImV4cCI6MjA4MDExMzE4MX0.RHng44u3pPpUZwlb-W1KvoyCi7RTVNtmw7S7LjgG0G0'
+  );
+
+  // Verificar sesión
+  const isLoggedIn = localStorage.getItem('isLoggedIn');
+  const userStr = localStorage.getItem('user');
+
+  if (isLoggedIn !== 'true' || !userStr) {
+    alert('Debes iniciar sesión para continuar');
+    window.location.href = '/login?redirect=/pago-simple';
+  }
+
+  const user = JSON.parse(userStr);
+
+  // Cargar carrito
+  function loadCart() {
+    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    
+    if (cart.length === 0) {
+      alert('Tu carrito está vacío');
+      window.location.href = '/carrito';
+      return;
+    }
+
+    const itemsContainer = document.getElementById('orderItems');
+    const totalElement = document.getElementById('totalAmount');
+
+    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+    itemsContainer.innerHTML = cart.map((item) => `
+      <div class="order-item">
+        <img src="${item.image}" alt="${item.name}" class="item-image">
+        <div class="item-info">
+          <div class="item-name">${item.name}</div>
+          <div class="item-quantity">${item.quantity} × $${item.price.toFixed(2)}</div>
+        </div>
+      </div>
+    `).join('');
+
+    totalElement.textContent = `$${total.toFixed(2)}`;
+  }
+
+  // Upload de comprobante
+  document.getElementById('proofUpload')?.addEventListener('change', (e) => {
+    const input = e.target;
+    const fileName = document.getElementById('fileName');
+    if (input.files && input.files[0] && fileName) {
+      fileName.textContent = `✓ ${input.files[0].name}`;
+    }
+  });
+
+  // Confirmar pedido
+  document.getElementById('confirmBtn')?.addEventListener('click', async () => {
+    const fileInput = document.getElementById('proofUpload');
+    const button = document.getElementById('confirmBtn');
+    
+    if (!fileInput.files || !fileInput.files[0]) {
+      alert('Por favor sube el comprobante de pago');
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = 'Procesando...';
+
+    try {
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+      // Crear orden
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert([{
+          user_id: user.id,
+          total,
+          status: 'pending'
+        }])
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      // Crear items de la orden
+      const orderItems = cart.map((item) => ({
+        order_id: order.id,
+        product_id: parseInt(item.id),
+        quantity: item.quantity,
+        price: item.price
+      }));
+
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(orderItems);
+
+      if (itemsError) throw itemsError;
+
+      // Limpiar carrito
+      localStorage.removeItem('cart');
+      window.dispatchEvent(new Event('cartUpdated'));
+
+      alert('¡Pedido realizado exitosamente!\n\nRecibirás un email de confirmación pronto.');
+      window.location.href = '/';
+      
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error al procesar tu pedido. Por favor intenta de nuevo.');
+      button.disabled = false;
+      button.textContent = 'Confirmar Pedido';
+    }
+  });
+
+  loadCart();
+</script>
