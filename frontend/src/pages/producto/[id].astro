@@ -215,29 +215,29 @@ export async function getStaticPaths() {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 10px 20px;
-    border-radius: 20px;
+    padding: 8px 16px;
+    border-radius: 12px;
     font-weight: 700;
-    font-size: 14px;
+    font-size: 13px;
     animation: fadeIn 0.6s ease-out 0.4s both;
   }
 
   .stock-indicator.available {
-    background: rgba(16, 185, 129, 0.1);
+    background: white;
     color: #059669;
-    border: 1.5px solid rgba(16, 185, 129, 0.3);
+    border: 2px solid #10b981;
   }
 
   .stock-indicator.low {
-    background: rgba(245, 158, 11, 0.1);
+    background: white;
     color: #D97706;
-    border: 1.5px solid rgba(245, 158, 11, 0.3);
+    border: 2px solid #f59e0b;
   }
 
   .stock-indicator.out {
-    background: rgba(239, 68, 68, 0.1);
+    background: white;
     color: #DC2626;
-    border: 1.5px solid rgba(239, 68, 68, 0.3);
+    border: 2px solid #ef4444;
   }
 
   .description {
@@ -255,18 +255,17 @@ export async function getStaticPaths() {
   }
 
   .feature-card {
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    border: 1.5px solid rgba(255, 255, 255, 0.8);
+    padding: 16px;
+    background: white;
+    border-radius: 12px;
+    border: 2px solid var(--border);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .feature-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(99, 102, 241, 0.12);
-    border-color: rgba(99, 102, 241, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border-color: var(--primary);
   }
 
   .feature-label {
@@ -285,14 +284,11 @@ export async function getStaticPaths() {
   }
 
   .purchase-section {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(20px);
-    padding: 32px;
-    border-radius: 28px;
-    border: 2px solid rgba(255, 255, 255, 0.9);
-    box-shadow: 
-      0 12px 48px rgba(99, 102, 241, 0.08),
-      inset 0 1px 0 rgba(255, 255, 255, 1);
+    background: white;
+    padding: 24px;
+    border-radius: 16px;
+    border: 2px solid var(--border);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     animation: fadeIn 0.6s ease-out 0.7s both;
   }
 
@@ -310,10 +306,10 @@ export async function getStaticPaths() {
   .quantity-controls {
     display: flex;
     align-items: center;
-    gap: 20px;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 16px 24px;
-    border-radius: 24px;
+    gap: 16px;
+    background: white;
+    padding: 12px 20px;
+    border-radius: 12px;
     border: 2px solid var(--border);
     width: fit-content;
   }
