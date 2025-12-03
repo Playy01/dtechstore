@@ -180,16 +180,10 @@ import Layout from '../layouts/Layout.astro';
 
   function addToCart(e: Event) {
     // Verificar si el usuario ha iniciado sesión
-    const token = localStorage.getItem('token');
-    if (!token) {
-      (window as any).showNotification(
-        'Por favor inicia sesión para agregar productos al carrito',
-        'warning',
-        'Sesión Requerida'
-      );
-      setTimeout(() => {
-        window.location.href = '/login';
-      }, 1500);
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    if (isLoggedIn !== 'true') {
+      alert('Por favor inicia sesión para agregar productos al carrito');
+      window.location.href = '/login';
       return;
     }
 
@@ -212,11 +206,7 @@ import Layout from '../layouts/Layout.astro';
     }
 
     localStorage.setItem('cart', JSON.stringify(cart));
-    (window as any).showNotification(
-      'El producto ha sido agregado a tu carrito',
-      'success',
-      '¡Agregado!'
-    );
+    alert('✓ Producto agregado al carrito');
     
     // Disparar evento para actualizar el contador
     window.dispatchEvent(new Event('cartUpdated'));
