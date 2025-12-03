@@ -163,53 +163,12 @@ import Layout from '../layouts/Layout.astro';
         <img src="${product.image_url}" alt="${product.name}" loading="lazy" width="300" height="300">
         <h3>${product.name}</h3>
         <p class="price">$${product.price.toFixed(2)}</p>
-        <button class="add-cart-btn" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}" data-image="${product.image_url}" aria-label="Agregar ${product.name} al carrito">
-          <span aria-hidden="true">🛒</span> Agregar al Carrito
-        </button>
+        <div class="view-details-btn">
+          <span aria-hidden="true">👁️</span> Ver Detalles
+        </div>
       </a>
     `).join('');
 
-    document.querySelectorAll('.add-cart-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        addToCart(e);
-      });
-    });
-  }
-
-  function addToCart(e) {
-    // Verificar si el usuario ha iniciado sesión
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    if (isLoggedIn !== 'true') {
-      alert('Por favor inicia sesión para agregar productos al carrito');
-      window.location.href = '/login';
-      return;
-    }
-
-    const btn = e.target;
-    const product = {
-      id: btn.dataset.id,
-      name: btn.dataset.name,
-      price: parseFloat(btn.dataset.price || '0'),
-      image: btn.dataset.image,
-      quantity: 1
-    };
-
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-    const existing = cart.find((item) => item.id === product.id);
-    
-    if (existing) {
-      existing.quantity++;
-    } else {
-      cart.push(product);
-    }
-
-    localStorage.setItem('cart', JSON.stringify(cart));
-    alert('✓ Producto agregado al carrito');
-    
-    // Disparar evento para actualizar el contador
-    window.dispatchEvent(new Event('cartUpdated'));
   }
 
   const sortSelect = document.getElementById('sortSelect');
@@ -282,7 +241,7 @@ import Layout from '../layouts/Layout.astro';
     color: var(--primary);
   }
 
-  .product-card .add-cart-btn {
+  .product-card .view-details-btn {
     display: block;
     width: calc(100% - 32px);
     margin: 16px;
@@ -296,7 +255,7 @@ import Layout from '../layouts/Layout.astro';
     box-shadow: 0 4px 12px var(--shadow);
   }
 
-  .product-card .add-cart-btn:hover {
+  .product-card .view-details-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px var(--shadow-lg);
   }
