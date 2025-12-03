@@ -178,7 +178,7 @@ import Layout from '../layouts/Layout.astro';
     });
   }
 
-  function addToCart(e: Event) {
+  function addToCart(e) {
     // Verificar si el usuario ha iniciado sesión
     const isLoggedIn = localStorage.getItem('isLoggedIn');
     if (isLoggedIn !== 'true') {
@@ -187,7 +187,7 @@ import Layout from '../layouts/Layout.astro';
       return;
     }
 
-    const btn = e.target as HTMLButtonElement;
+    const btn = e.target;
     const product = {
       id: btn.dataset.id,
       name: btn.dataset.name,
@@ -212,7 +212,7 @@ import Layout from '../layouts/Layout.astro';
     window.dispatchEvent(new Event('cartUpdated'));
   }
 
-  const sortSelect = document.getElementById('sortSelect') as HTMLSelectElement;
+  const sortSelect = document.getElementById('sortSelect');
   sortSelect?.addEventListener('change', () => {
     const sorted = [...allProducts];
     switch (sortSelect.value) {
