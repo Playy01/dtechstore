@@ -92,15 +92,11 @@ import Layout from '../layouts/Layout.astro';
         <!-- Formulario de Mercado Pago -->
         <div class="payment-form" id="mercadopagoForm" style="display: none;">
           <h3>Pagar con Mercado Pago</h3>
-          <p class="mp-info">Serás redirigido a Mercado Pago para completar tu pago de forma segura.</p>
-          
-          <div class="mp-button-container">
-            <button class="btn-mercadopago" id="mercadopagoButton">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M15.5 2C11.4 2 8 5.4 8 9.5c0 1.8.6 3.4 1.7 4.7L2 22l1.4 1.4 7.8-7.8c1.3 1 2.9 1.7 4.7 1.7 4.1 0 7.5-3.4 7.5-7.5S19.6 2 15.5 2zm0 12c-2.5 0-4.5-2-4.5-4.5S13 5 15.5 5 20 7 20 9.5 18 14 15.5 14z"/>
-              </svg>
-              Pagar con Mercado Pago
-            </button>
+          <div class="coming-soon">
+            <div class="coming-soon-icon">🚧</div>
+            <h4>Próximamente</h4>
+            <p>Estamos trabajando para integrar Mercado Pago y ofrecerte más opciones de pago.</p>
+            <p class="coming-soon-note">Por ahora, puedes usar transferencia bancaria.</p>
           </div>
         </div>
       </div>
@@ -248,6 +244,38 @@ import Layout from '../layouts/Layout.astro';
   .method-icon.mercadopago {
     background: linear-gradient(135deg, #009ee3, #0066cc);
     color: white;
+  }
+
+  .coming-soon {
+    text-align: center;
+    padding: 40px 20px;
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    border: 2px dashed var(--border);
+  }
+
+  .coming-soon-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+
+  .coming-soon h4 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+  }
+
+  .coming-soon p {
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    line-height: 1.6;
+  }
+
+  .coming-soon-note {
+    font-weight: 600;
+    color: var(--primary);
+    margin-top: 16px;
   }
 
   .method-info {
@@ -487,7 +515,7 @@ import Layout from '../layouts/Layout.astro';
     totalElement.textContent = `$${total.toFixed(2)}`;
   }
 
-  // No necesitamos inicializar el SDK, usaremos la API directamente
+  // Mercado Pago próximamente - no se necesita código por ahora
 
   // Manejo de selección de método de pago
   const bankCard = document.getElementById('bankTransferCard');
