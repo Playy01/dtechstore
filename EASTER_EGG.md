@@ -2,7 +2,7 @@
 
 ## ¿Cómo activarlo?
 
-1. Ve a cualquier página del sitio
+1. Ve a tu sitio en Vercel: **https://dtechstore.vercel.app** (o tu URL personalizada)
 2. En el buscador del header, escribe: **banana** (en mayúsculas, minúsculas o mixto)
 3. Presiona Enter o haz clic en el botón de búsqueda
 4. ¡Disfruta de la sorpresa! 🎉
