@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Actualizar Productos en Supabase</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <h1>Actualizando productos en Supabase...</h1>
+  <div id="status"></div>
+
+  <script type="module">
+    const { createClient } = supabase;
+    
+    const supabaseClient = createClient(
+      'https://szfwntkbjrspcptzgoks.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZndudGtianJzcGNwdHpnb2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1MzcxODEsImV4cCI6MjA4MDExMzE4MX0.RHng44u3pPpUZwlb-W1KvoyCi7RTVNtmw7S7LjgG0G0'
+    );
+
+    const products = [
+      {
+        id: 1,
+        description: 'Audífonos gaming con sonido envolvente 7.1, micrófono con cancelación de ruido, iluminación RGB y almohadillas de memoria. Compatible con PC, PS4, Xbox One y Nintendo Switch.',
+        price: 399.00
+      },
+      {
+        id: 2,
+        description: 'Teclado mecánico gaming con retroiluminación RGB, switches mecánicos azules, reposamuñecas ergonómico y teclas anti-ghosting. Ideal para gaming profesional.',
+        price: 899.00
+      },
+      {
+        id: 3,
+        description: 'Mouse gaming con sensor óptico de 6400 DPI ajustable, 7 botones programables, iluminación RGB personalizable y diseño ergonómico para sesiones largas.',
+        price: 299.00
+      },
+      {
+        id: 4,
+        description: 'Audífonos inalámbricos con Bluetooth 5.0, cancelación activa de ruido, batería de hasta 30 horas, micrófono integrado y estuche de carga portátil.',
+        price: 599.00
+      },
+      {
+        id: 5,
+        description: 'Audífonos gaming con iluminación LED RGB, sonido estéreo HD, micrófono flexible, control de volumen en cable y compatibilidad universal con consolas y PC.',
+        price: 349.00
+      },
+      {
+        id: 6,
+        description: 'Audífonos in-ear con drivers dinámicos de 10mm, cable desmontable de 2 pines, diseño ergonómico y aislamiento de ruido pasivo. Perfectos para audiófilos.',
+        price: 449.00
+      },
+      {
+        id: 7,
+        description: 'Audífonos in-ear de entrada con driver dinámico de 10mm, diseño compacto y ligero, cable reforzado y excelente relación calidad-precio para uso diario.',
+        price: 199.00
+      },
+      {
+        id: 8,
+        description: 'Audífonos in-ear mejorados con drivers dinámicos de 10mm optimizados, cable desmontable de 0.75mm, diseño ergonómico y sonido balanceado para música y gaming.',
+        price: 249.00
+      }
+    ];
+
+    async function updateProducts() {
+      const statusDiv = document.getElementById('status');
+      statusDiv.innerHTML = '<p>Iniciando actualización...</p>';
+
+      for (const product of products) {
+        try {
+          const { data, error } = await supabaseClient
+            .from('products')
+            .update({
+              description: product.description,
+              price: product.price
+            })
+            .eq('id', product.id);
+
+          if (error) {
+            statusDiv.innerHTML += `<p style="color: red;">❌ Error en producto ${product.id}: ${error.message}</p>`;
+          } else {
+            statusDiv.innerHTML += `<p style="color: green;">✅ Producto ${product.id} actualizado</p>`;
+          }
+        } catch (err) {
+          statusDiv.innerHTML += `<p style="color: red;">❌ Error: ${err.message}</p>`;
+        }
+      }
+
+      statusDiv.innerHTML += '<h2 style="color: green;">✅ ¡Actualización completada!</h2>';
+      statusDiv.innerHTML += '<p>Recarga la página de productos para ver los cambios.</p>';
+    }
+
+    updateProducts();
+  </script>
+</body>
+</html>
