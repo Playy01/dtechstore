@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Supabase Connection</title>
+</head>
+<body>
+  <h1>Test Supabase Connection</h1>
+  <button id="testBtn">Test Connection</button>
+  <button id="testLoginBtn">Test Login</button>
+  <div id="result"></div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+    
+    const supabase = createClient(
+      'https://szfamthbjrsqctzgokx.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZmFtdGhianJzcWN0emdva3giLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczMjkyNzU3NCwiZXhwIjoyMDQ4NTAzNTc0fQ.Ej3haz4QlBUcrN4bfDLAKVQ_B8k3pp04'
+    );
+
+    const resultDiv = document.getElementById('result');
+
+    document.getElementById('testBtn').addEventListener('click', async () => {
+      resultDiv.innerHTML = 'Testing...';
+      try {
+        const { data, error } = await supabase
+          .from('users')
+          .select('email, name, role')
+          .limit(5);
+
+        if (error) {
+          resultDiv.innerHTML = `<pre style="color: red;">Error: ${JSON.stringify(error, null, 2)}</pre>`;
+        } else {
+          resultDiv.innerHTML = `<pre style="color: green;">Success! Users found: ${data.length}\n${JSON.stringify(data, null, 2)}</pre>`;
+        }
+      } catch (err) {
+        resultDiv.innerHTML = `<pre style="color: red;">Exception: ${err.message}</pre>`;
+      }
+    });
+
+    document.getElementById('testLoginBtn').addEventListener('click', async () => {
+      resultDiv.innerHTML = 'Testing login...';
+      try {
+        const email = 'admin@tienda.com';
+        const password = btoa('admin123'); // Hash simple
+
+        const { data, error } = await supabase
+          .from('users')
+          .select('*')
+          .eq('email', email)
+          .eq('password', password)
+          .single();
+
+        if (error) {
+          resultDiv.innerHTML = `<pre style="color: red;">Error: ${JSON.stringify(error, null, 2)}</pre>`;
+        } else {
+          resultDiv.innerHTML = `<pre style="color: green;">Login Success!\n${JSON.stringify(data, null, 2)}</pre>`;
+        }
+      } catch (err) {
+        resultDiv.innerHTML = `<pre style="color: red;">Exception: ${err.message}</pre>`;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+{
+  "name": "Auto Deploy a Vercel",
+  "description": "Automáticamente hace commit y push de cambios al guardar archivos del frontend",
+  "trigger": {
+    "type": "onFileSave",
+    "filePattern": "frontend/**/*.{astro,ts,tsx,js,jsx,css}"
+  },
+  "actions": [
+    {
+      "type": "executeCommand",
+      "command": "git add .",
+      "description": "Agregar cambios al staging"
+    },
+    {
+      "type": "executeCommand",
+      "command": "git commit -m 'Auto-deploy: Actualización de archivos frontend'",
+      "description": "Crear commit automático",
+      "continueOnError": true
+    },
+    {
+      "type": "executeCommand",
+      "command": "git push origin main",
+      "description": "Subir cambios a GitHub (trigger Vercel deploy)"
+    }
+  ],
+  "enabled": true
+}

@@ -1,0 +1,508 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { createClient } from '@supabase/supabase-js';
+
+export async function getStaticPaths() {
+  const supabaseUrl = 'https://szfwntkbjrspcptzgoks.supabase.co';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZndudGtianJzcGNwdHpnb2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1MzcxODEsImV4cCI6MjA4MDExMzE4MX0.RHng44u3pPpUZwlb-W1KvoyCi7RTVNtmw7S7LjgG0G0';
+  const supabase = createClient(supabaseUrl, supabaseKey);
+  
+  try {
+    const { data: products, error } = await supabase
+      .from('products')
+      .select('id');
+    
+    if (error) {
+      console.error('Error fetching products:', error);
+      return [];
+    }
+    
+    return products.map((product) => ({
+      params: { id: product.id.toString() }
+    }));
+  } catch (error) {
+    console.error('Error in getStaticPaths:', error);
+    return [];
+  }
+}
+---
+
+<Layout title="Producto - BananaTech">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="/">Inicio</a>
+      <span>›</span>
+      <a href="/productos">Productos</a>
+      <span>›</span>
+      <span id="breadcrumbName">Cargando...</span>
+    </div>
+
+    <div id="productContent" class="loading-state">
+      <div class="loader">
+        <div class="spinner"></div>
+        <p>Cargando producto...</p>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 32px;
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  .breadcrumb a {
+    color: var(--primary);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover {
+    opacity: 0.7;
+  }
+
+  .loading-state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+  }
+
+  .loader {
+    text-align: center;
+  }
+
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .product-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+  }
+
+  .product-image-container {
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 20px;
+    padding: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .category-badge {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: var(--primary);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  .product-image {
+    width: 100%;
+    max-height: 500px;
+    object-fit: contain;
+  }
+
+  .info-section {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .product-title {
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+
+  .price-stock-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .product-price {
+    font-size: 42px;
+    font-weight: 800;
+    background: var(--bg-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .stock-badge {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    border: 2px solid;
+  }
+
+  .stock-badge.available {
+    background: white;
+    color: #059669;
+    border-color: #10b981;
+  }
+
+  .stock-badge.low {
+    background: white;
+    color: #D97706;
+    border-color: #f59e0b;
+  }
+
+  .stock-badge.out {
+    background: white;
+    color: #DC2626;
+    border-color: #ef4444;
+  }
+
+  .product-description {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--text-secondary);
+    padding: 20px;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    border: 2px solid var(--border);
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .info-card {
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+
+  .info-card:hover {
+    border-color: var(--primary);
+  }
+
+  .info-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .info-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--primary);
+  }
+
+  .purchase-box {
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+  }
+
+  .quantity-label {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--bg-secondary);
+    padding: 12px 20px;
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    width: fit-content;
+    margin-bottom: 20px;
+  }
+
+  .qty-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--primary);
+    color: white;
+    font-size: 20px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+  }
+
+  .qty-btn:hover {
+    opacity: 0.8;
+  }
+
+  .qty-display {
+    font-size: 20px;
+    font-weight: 700;
+    min-width: 50px;
+    text-align: center;
+  }
+
+  .action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    border: none;
+  }
+
+  .btn-primary {
+    background: var(--bg-gradient);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    opacity: 0.9;
+  }
+
+  .btn-secondary {
+    background: white;
+    color: var(--primary);
+    border: 2px solid var(--primary);
+  }
+
+  .btn-secondary:hover {
+    background: var(--bg-secondary);
+  }
+
+  @media (max-width: 968px) {
+    .product-layout {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+
+    .product-title {
+      font-size: 28px;
+    }
+
+    .product-price {
+      font-size: 32px;
+    }
+
+    .info-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+  
+  const supabase = createClient(
+    'https://szfwntkbjrspcptzgoks.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6ZndudGtianJzcGNwdHpnb2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1MzcxODEsImV4cCI6MjA4MDExMzE4MX0.RHng44u3pPpUZwlb-W1KvoyCi7RTVNtmw7S7LjgG0G0'
+  );
+
+  let quantity = 1;
+  let currentProduct = null;
+
+  async function loadProduct() {
+    const pathParts = window.location.pathname.split('/');
+    const productId = pathParts[pathParts.length - 1];
+
+    try {
+      const { data: product, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', productId)
+        .single();
+
+      if (error) throw error;
+      
+      currentProduct = product;
+      displayProduct(product);
+    } catch (error) {
+      console.error('Error:', error);
+      document.getElementById('productContent').innerHTML = 
+        '<p style="text-align: center; padding: 80px;">Producto no encontrado</p>';
+    }
+  }
+
+  function displayProduct(product) {
+    const container = document.getElementById('productContent');
+    const breadcrumbName = document.getElementById('breadcrumbName');
+    
+    if (breadcrumbName) breadcrumbName.textContent = product.name;
+
+    const stockClass = product.stock > 10 ? 'available' : product.stock > 0 ? 'low' : 'out';
+    const stockText = product.stock > 10 ? '✓ Disponible' : product.stock > 0 ? `⚠ Solo ${product.stock}` : '✗ Agotado';
+
+    container.innerHTML = `
+      <div class="product-layout">
+        <div class="image-section">
+          <div class="product-image-container">
+            <div class="category-badge">${product.category}</div>
+            <img src="${product.image_url}" alt="${product.name}" class="product-image">
+          </div>
+        </div>
+
+        <div class="info-section">
+          <h1 class="product-title">${product.name}</h1>
+
+          <div class="price-stock-row">
+            <div class="product-price">$${product.price.toFixed(2)}</div>
+            <div class="stock-badge ${stockClass}">${stockText}</div>
+          </div>
+
+          <div class="product-description">${product.description}</div>
+
+          <div class="info-grid">
+            <div class="info-card">
+              <div class="info-label">Categoría</div>
+              <div class="info-value">${product.category}</div>
+            </div>
+            <div class="info-card">
+              <div class="info-label">Stock</div>
+              <div class="info-value">${product.stock} unidades</div>
+            </div>
+          </div>
+
+          ${product.stock > 0 ? `
+            <div class="purchase-box">
+              <label class="quantity-label">Cantidad</label>
+              <div class="quantity-controls">
+                <button class="qty-btn" id="decreaseQty">−</button>
+                <span class="qty-display" id="qtyDisplay">1</span>
+                <button class="qty-btn" id="increaseQty">+</button>
+              </div>
+
+              <div class="action-buttons">
+                <button class="btn btn-primary" id="addToCartBtn">
+                  🛒 Agregar al Carrito
+                </button>
+                <button class="btn btn-secondary" id="buyNowBtn">
+                  → Comprar Ahora
+                </button>
+              </div>
+            </div>
+          ` : '<p style="text-align: center; padding: 40px; color: var(--text-secondary);">Producto agotado</p>'}
+        </div>
+      </div>
+    `;
+
+    if (product.stock > 0) {
+      setupControls(product);
+    }
+  }
+
+  function setupControls(product) {
+    document.getElementById('decreaseQty')?.addEventListener('click', () => {
+      if (quantity > 1) {
+        quantity--;
+        document.getElementById('qtyDisplay').textContent = quantity;
+      }
+    });
+
+    document.getElementById('increaseQty')?.addEventListener('click', () => {
+      if (quantity < product.stock) {
+        quantity++;
+        document.getElementById('qtyDisplay').textContent = quantity;
+      }
+    });
+
+    document.getElementById('addToCartBtn')?.addEventListener('click', () => {
+      if (localStorage.getItem('isLoggedIn') !== 'true') {
+        alert('Inicia sesión para agregar al carrito');
+        window.location.href = '/login';
+        return;
+      }
+
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const existing = cart.find(item => item.id === product.id.toString());
+      
+      if (existing) {
+        existing.quantity += quantity;
+      } else {
+        cart.push({
+          id: product.id.toString(),
+          name: product.name,
+          price: product.price,
+          image: product.image_url,
+          quantity: quantity
+        });
+      }
+
+      localStorage.setItem('cart', JSON.stringify(cart));
+      window.dispatchEvent(new Event('cartUpdated'));
+      alert(`✓ ${quantity} producto(s) agregado(s)`);
+    });
+
+    document.getElementById('buyNowBtn')?.addEventListener('click', () => {
+      if (localStorage.getItem('isLoggedIn') !== 'true') {
+        alert('Inicia sesión para comprar');
+        window.location.href = '/login';
+        return;
+      }
+
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const existing = cart.find(item => item.id === product.id.toString());
+      
+      if (existing) {
+        existing.quantity += quantity;
+      } else {
+        cart.push({
+          id: product.id.toString(),
+          name: product.name,
+          price: product.price,
+          image: product.image_url,
+          quantity: quantity
+        });
+      }
+
+      localStorage.setItem('cart', JSON.stringify(cart));
+      window.location.href = '/carrito';
+    });
+  }
+
+  loadProduct();
+</script>
