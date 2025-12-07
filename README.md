@@ -1,190 +1,325 @@
-# 🛍️ DTech E-commerce Platform
+# 🍌 DTech Store - E-commerce Moderno
 
-Plataforma de comercio electrónico completa con estilo moderno y diseño profesional.
+E-commerce completo construido con Astro, Supabase y desplegado en Vercel.
 
-## 🚀 Estado del Proyecto
+![Status](https://img.shields.io/badge/status-active-success.svg)
+![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
-**✅ 100% Listo para Producción**
+## 🌐 Demo en Vivo
 
-- Backend en Go con Gin
-- Frontend en Astro
-- Base de datos MySQL
-- Dockerizado y optimizado
-- Documentación completa de despliegue
+**Sitio Web**: [https://dtechstore.vercel.app](https://dtechstore.vercel.app)
 
-## ⚡ Despliegue Rápido
-
-**¿Quieres desplegar en producción?**
-
-👉 **Abre [EMPIEZA_AQUI.md](EMPIEZA_AQUI.md)** para comenzar
-
-O ejecuta:
-```bash
-./verificar-despliegue.sh
-```
-
-Tiempo estimado: **10-15 minutos** en Railway (gratis)
-
-## Tecnologías
-
-- **Backend**: Go (Gin framework)
-- **Frontend**: Astro
-- **Base de datos**: MySQL
-- **Autenticación**: JWT
-
-## Estructura del Proyecto
-
-```
-├── backend/           # API REST en Go
-│   ├── handlers/      # Controladores
-│   ├── middleware/    # Middleware de autenticación
-│   ├── models/        # Modelos de datos
-│   ├── routes/        # Definición de rutas
-│   └── main.go        # Punto de entrada
-├── frontend/          # Aplicación Astro
-│   └── src/
-│       ├── components/
-│       ├── layouts/
-│       ├── pages/
-│       └── styles/
-└── database/          # Scripts SQL
-```
-
-## Configuración Rápida
-
-```bash
-chmod +x start.sh
-./start.sh
-```
-
-O manualmente:
-
-### 1. Base de Datos MySQL
-
-```bash
-mysql -u root -p < database/schema.sql
-```
-
-### 2. Backend (Go)
-
-```bash
-cd backend
-cp .env.example .env
-# Edita .env con tus credenciales de MySQL
-go mod download
-go run main.go
-```
-
-El servidor correrá en `http://localhost:8080`
-
-### 3. Frontend (Astro)
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-El frontend correrá en `http://localhost:4321`
-
-## Funcionalidades
-
-### Usuarios
-- Registro y login
-- Autenticación con JWT
-- Roles (usuario/admin)
-
-### Productos
-- Listado con filtros y búsqueda
-- Categorías
-- Gestión de stock
-- CRUD completo (admin)
-
-### Carrito y Órdenes
-- Agregar productos al carrito
-- Gestión de cantidades
-- Crear órdenes
-- Historial de compras
-
-## Productos Iniciales
-
-Los productos se cargan automáticamente desde las imágenes en `imagenes de catalogo/`:
-- Free Wolf X7, K820, M96, X15, X2
-- KZ Castor, EDX Lite, EDX Pro
-
-## Credenciales Admin
-
+**Credenciales de prueba**:
 - Email: `admin@tienda.com`
 - Password: `admin123`
 
-## API Endpoints
+---
 
-### Health Check
-- `GET /api/health` - Verificar estado de la API
+## ✨ Características
 
-### Auth
-- `POST /api/auth/register` - Registro
-- `POST /api/auth/login` - Login
-- `GET /api/auth/profile` - Perfil (requiere auth)
-
-### Products
-- `GET /api/products` - Listar productos
-- `GET /api/products/:id` - Obtener producto
-- `GET /api/products/categories` - Listar categorías
-- `POST /api/products` - Crear (admin)
-- `PUT /api/products/:id` - Actualizar (admin)
-- `DELETE /api/products/:id` - Eliminar (admin)
-
-### Orders
-- `POST /api/orders` - Crear orden (requiere auth)
-- `GET /api/orders` - Listar órdenes (requiere auth)
-- `GET /api/orders/:id` - Obtener orden (requiere auth)
-
-## 📚 Documentación de Despliegue
-
-### Guías Disponibles
-- **[EMPIEZA_AQUI.md](EMPIEZA_AQUI.md)** - Punto de inicio
-- **[INICIO_RAPIDO.md](INICIO_RAPIDO.md)** - Despliegue en 10 minutos
-- **[DESPLIEGUE_RAILWAY.md](DESPLIEGUE_RAILWAY.md)** - Guía completa Railway
-- **[OPCIONES_DESPLIEGUE.md](OPCIONES_DESPLIEGUE.md)** - Comparación de servicios
-- **[INDICE_DESPLIEGUE.md](INDICE_DESPLIEGUE.md)** - Índice completo
-
-### Herramientas
-- **[verificar-despliegue.sh](verificar-despliegue.sh)** - Script de verificación
-- **[CHECKLIST_DESPLIEGUE.md](CHECKLIST_DESPLIEGUE.md)** - Lista de verificación
-- **[COMANDOS_UTILES.md](COMANDOS_UTILES.md)** - Comandos útiles
-
-## 🌐 Despliegue en Servicios Gratuitos
-
-### Railway (Recomendado)
-- MySQL incluido
-- $5 USD gratis/mes
-- Sin cold starts
-- Tiempo: 10-15 minutos
-
-### Render (Alternativa)
-- PostgreSQL gratis
-- 750 horas/mes
-- Con cold starts
-- Tiempo: 15-20 minutos
-
-Ver comparación completa en [OPCIONES_DESPLIEGUE.md](OPCIONES_DESPLIEGUE.md)
-
-## 🐳 Docker
-
-El proyecto incluye Dockerfiles optimizados:
-- `backend/railway.Dockerfile` - Backend en Go
-- `frontend/railway.Dockerfile` - Frontend en Astro
-- `railway.toml` - Configuración de Railway
-
-## 📊 Características
-
-- ✅ Autenticación JWT
-- ✅ Roles de usuario (admin/usuario)
-- ✅ Gestión de productos
-- ✅ Carrito de compras
+### 🛍️ E-commerce Completo
+- ✅ Catálogo de productos con imágenes
+- ✅ Búsqueda y filtrado por categorías
+- ✅ Carrito de compras persistente
 - ✅ Sistema de órdenes
+- ✅ Gestión de inventario
+
+### 🔐 Autenticación
+- ✅ Registro de usuarios
+- ✅ Login/Logout
+- ✅ Sesiones persistentes
+- ✅ Protección de rutas
 - ✅ Panel de administración
-- ✅ Responsive design
-- ✅ Dockerizado
-- ✅ Listo para producción
+
+### 🎨 Diseño Moderno
+- ✅ Responsive (móvil, tablet, desktop)
+- ✅ Animaciones suaves
+- ✅ Tema personalizable
+- ✅ Interfaz intuitiva
+- ✅ Easter egg oculto 🍌
+
+### ⚡ Performance
+- ✅ Carga rápida (Astro SSG)
+- ✅ Optimización de imágenes
+- ✅ Cache inteligente
+- ✅ SEO optimizado
+
+---
+
+## 🛠️ Tecnologías
+
+### Frontend
+- **[Astro](https://astro.build)** - Framework web moderno
+- **TypeScript** - Tipado estático
+- **CSS Variables** - Estilos personalizables
+
+### Backend
+- **[Supabase](https://supabase.com)** - Base de datos PostgreSQL
+- **Supabase Auth** - Autenticación
+
+### Deployment
+- **[Vercel](https://vercel.com)** - Hosting y CI/CD
+- **GitHub** - Control de versiones
+
+---
+
+## 🚀 Inicio Rápido
+
+### Prerrequisitos
+- Node.js 18+ ([Descargar](https://nodejs.org/))
+- Git ([Descargar](https://git-scm.com/))
+
+### Instalación
+
+```bash
+# 1. Clonar el repositorio
+git clone https://github.com/Playy01/dtechstore.git
+cd dtechstore
+
+# 2. Instalar dependencias
+cd frontend
+npm install
+
+# 3. Iniciar servidor de desarrollo
+npm run dev
+
+# 4. Abrir en el navegador
+# http://localhost:4321
+```
+
+### Comandos Disponibles
+
+```bash
+npm run dev      # Servidor de desarrollo
+npm run build    # Build de producción
+npm run preview  # Vista previa del build
+```
+
+---
+
+## 📁 Estructura del Proyecto
+
+```
+dtechstore/
+├── frontend/
+│   ├── src/
+│   │   ├── components/      # Componentes reutilizables
+│   │   │   ├── Header.astro
+│   │   │   └── Notification.astro
+│   │   ├── layouts/         # Layouts de página
+│   │   │   └── Layout.astro
+│   │   ├── pages/           # Páginas (rutas)
+│   │   │   ├── index.astro
+│   │   │   ├── productos.astro
+│   │   │   ├── carrito.astro
+│   │   │   ├── login.astro
+│   │   │   └── producto/[id].astro
+│   │   ├── styles/          # Estilos globales
+│   │   │   └── global.css
+│   │   └── lib/             # Utilidades
+│   │       ├── supabase.ts
+│   │       └── auth.ts
+│   ├── public/              # Archivos estáticos
+│   │   ├── products.json
+│   │   └── imagenes de catalogo/
+│   └── package.json
+├── database/                # Scripts SQL
+│   └── schema-postgres.sql
+└── README.md
+```
+
+---
+
+## 🎯 Funcionalidades Principales
+
+### Productos
+- Listado con paginación
+- Búsqueda en tiempo real
+- Filtrado por categorías
+- Vista detallada de producto
+- Gestión de stock
+
+### Carrito
+- Agregar/eliminar productos
+- Modificar cantidades
+- Cálculo automático de totales
+- Persistencia en localStorage
+- Validación de stock
+
+### Autenticación
+- Registro con email/password
+- Login seguro
+- Sesiones persistentes
+- Recuperación de contraseña
+- Roles de usuario (admin/cliente)
+
+### Panel de Administración
+- Gestión de usuarios
+- Gestión de pedidos
+- Estadísticas básicas
+- Solo accesible para admins
+
+---
+
+## 🔧 Configuración
+
+### Variables de Entorno
+
+El proyecto ya tiene las credenciales de Supabase configuradas en el código. Para usar tu propia base de datos:
+
+1. Crea un proyecto en [Supabase](https://supabase.com)
+2. Ejecuta el script SQL en `database/schema-postgres.sql`
+3. Actualiza las credenciales en:
+   - `frontend/src/config/supabase.ts`
+   - `frontend/src/layouts/Layout.astro`
+
+### Personalización
+
+#### Cambiar Colores
+Edita `frontend/src/styles/global.css`:
+```css
+:root {
+  --primary: #6366f1;      /* Color principal */
+  --primary-dark: #4f46e5; /* Color principal oscuro */
+  --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+```
+
+#### Agregar Productos
+Edita `frontend/public/products.json`:
+```json
+{
+  "id": 9,
+  "name": "Nuevo Producto",
+  "description": "Descripción del producto",
+  "price": 499.00,
+  "stock": 10,
+  "image_url": "/imagenes de catalogo/producto.webp",
+  "category": "Categoría"
+}
+```
+
+---
+
+## 🚢 Despliegue
+
+### Vercel (Recomendado)
+
+El proyecto está configurado para despliegue automático:
+
+1. Haz push a GitHub
+2. Vercel detecta el cambio
+3. Construye y despliega automáticamente
+4. Listo en 2-3 minutos
+
+### Manual
+
+```bash
+# 1. Construir el proyecto
+cd frontend
+npm run build
+
+# 2. El build estará en frontend/dist/
+# 3. Sube esta carpeta a tu hosting
+```
+
+---
+
+## 🐛 Solución de Problemas
+
+### El servidor no inicia
+```bash
+# Reinstalar dependencias
+rm -rf node_modules package-lock.json
+npm install
+```
+
+### Cambios no se reflejan
+- Hard refresh: `Ctrl + Shift + R`
+- O abre en modo incógnito
+
+### Error de base de datos
+- Verifica que Supabase esté activo
+- Revisa las credenciales en el código
+- Verifica la consola del navegador (F12)
+
+---
+
+## 🎨 Easter Egg
+
+¿Puedes encontrar el secreto oculto? 🍌
+
+**Pista**: Busca algo relacionado con el nombre del sitio...
+
+---
+
+## 📚 Documentación Adicional
+
+- [Configurar en Nueva Computadora](./SETUP_NUEVA_COMPUTADORA.md)
+- [Guía de Despliegue](./DESPLIEGUE_EXITOSO.md)
+- [Easter Egg](./EASTER_EGG.md)
+
+---
+
+## 🤝 Contribuir
+
+Las contribuciones son bienvenidas. Para cambios importantes:
+
+1. Fork el proyecto
+2. Crea una rama (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
+
+---
+
+## 📝 Roadmap
+
+### Próximas Funcionalidades
+- [ ] Integración con Mercado Pago
+- [ ] Sistema de reviews y calificaciones
+- [ ] Wishlist de productos
+- [ ] Notificaciones por email
+- [ ] Panel de analytics
+- [ ] Búsqueda avanzada con filtros
+- [ ] Sistema de cupones/descuentos
+- [ ] Integración con redes sociales
+
+---
+
+## 📄 Licencia
+
+Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
+
+---
+
+## 👤 Autor
+
+**Playy01**
+- GitHub: [@Playy01](https://github.com/Playy01)
+- Proyecto: [DTech Store](https://github.com/Playy01/dtechstore)
+
+---
+
+## 🙏 Agradecimientos
+
+- [Astro](https://astro.build) - Framework increíble
+- [Supabase](https://supabase.com) - Backend as a Service
+- [Vercel](https://vercel.com) - Hosting gratuito
+- Comunidad open source
+
+---
+
+## 📊 Estado del Proyecto
+
+- ✅ **Versión**: 1.0.0
+- ✅ **Estado**: Producción
+- ✅ **Última actualización**: Diciembre 2024
+- ✅ **Mantenimiento**: Activo
+
+---
+
+**⭐ Si te gusta este proyecto, dale una estrella en GitHub!**
+
+[Ver Demo](https://dtechstore.vercel.app) | [Reportar Bug](https://github.com/Playy01/dtechstore/issues) | [Solicitar Feature](https://github.com/Playy01/dtechstore/issues)
